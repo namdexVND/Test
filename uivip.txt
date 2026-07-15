@@ -1,0 +1,633 @@
+-- ================================================================
+-- 🌙 NIGHT MYSTIC LIBRARY – Tương thích uivip.txt
+-- ================================================================
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+-- ================================================================
+-- 🎨 MÀU SẮC
+-- ================================================================
+local UIColor = {
+    BackgroundMain = Color3.fromRGB(15, 15, 15),
+    Background1 = Color3.fromRGB(22, 22, 22),
+    Background2 = Color3.fromRGB(30, 30, 30),
+    Background3 = Color3.fromRGB(25, 25, 25),
+    Text = Color3.fromRGB(235, 235, 230),
+    TitleText = Color3.fromRGB(255, 255, 255),
+    Accent = Color3.fromRGB(200, 40, 40),
+    Border = Color3.fromRGB(50, 50, 50),
+    Button = Color3.fromRGB(35, 35, 35),
+    ToggleChecked = Color3.fromRGB(200, 40, 40),
+    Placeholder = Color3.fromRGB(100, 100, 100),
+    LogoImage = "rbxassetid://104181747838868",
+    DropdownIcon = Color3.fromRGB(200, 40, 40),
+    SliderHighlight = Color3.fromRGB(200, 40, 40),
+    SliderLine = Color3.fromRGB(45, 45, 45),
+}
+getgenv().UIColor = UIColor  -- để script có thể tham khảo nếu cần
+
+-- ================================================================
+-- 📦 HÀM TẠO GUI CHÍNH
+-- ================================================================
+local mainGui = Instance.new("ScreenGui")
+mainGui.Name = "NightMysticLib"
+mainGui.ResetOnSpawn = false
+mainGui.Enabled = false
+mainGui.Parent = CoreGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Parent = mainGui
+mainFrame.Size = UDim2.new(0, 600, 0, 450)
+mainFrame.Position = UDim2.new(0.5, -300, 0.5, -225)
+mainFrame.BackgroundColor3 = UIColor.BackgroundMain
+mainFrame.BorderSizePixel = 0
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+
+local stroke = Instance.new("UIStroke", mainFrame)
+stroke.Color = UIColor.Border
+stroke.Thickness = 1.5
+
+-- Tiêu đề + nút đóng
+local titleBar = Instance.new("Frame", mainFrame)
+titleBar.Size = UDim2.new(1, 0, 0, 40)
+titleBar.BackgroundTransparency = 1
+
+local titleLabel = Instance.new("TextLabel", titleBar)
+titleLabel.Size = UDim2.new(1, -50, 1, 0)
+titleLabel.Position = UDim2.new(0, 15, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "🌙 Night Mystic Hub"
+titleLabel.TextColor3 = UIColor.TitleText
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextSize = 20
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local closeBtn = Instance.new("TextButton", titleBar)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+closeBtn.BackgroundTransparency = 0.3
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 16
+closeBtn.BorderSizePixel = 0
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(1, 0)
+closeBtn.MouseButton1Click:Connect(function()
+    mainGui.Enabled = false
+    getgenv().UIToggled = false
+end)
+
+-- Tab buttons (thanh ngang)
+local tabBar = Instance.new("Frame", mainFrame)
+tabBar.Size = UDim2.new(1, 0, 0, 36)
+tabBar.Position = UDim2.new(0, 0, 0, 40)
+tabBar.BackgroundColor3 = UIColor.Background2
+tabBar.BackgroundTransparency = 0.3
+Instance.new("UICorner", tabBar).CornerRadius = UDim.new(0, 0)
+
+local tabList = Instance.new("UIListLayout", tabBar)
+tabList.FillDirection = Enum.FillDirection.Horizontal
+tabList.Padding = UDim.new(0, 5)
+tabList.HorizontalAlignment = Enum.HorizontalAlignment.Left
+tabList.VerticalAlignment = Enum.VerticalAlignment.Center
+
+-- Container cho nội dung tab
+local contentContainer = Instance.new("Frame", mainFrame)
+contentContainer.Size = UDim2.new(1, 0, 1, -76)
+contentContainer.Position = UDim2.new(0, 0, 0, 76)
+contentContainer.BackgroundTransparency = 1
+contentContainer.ClipsDescendants = true
+
+-- ================================================================
+-- 📊 QUẢN LÝ TAB
+-- ================================================================
+local tabs = {}
+local activeTab = nil
+
+local function switchTab(tabName)
+    for name, data in pairs(tabs) do
+        local visible = (name == tabName)
+        if data.Frame then data.Frame.Visible = visible end
+        if data.Button then
+            data.Button.BackgroundColor3 = visible and UIColor.Accent or UIColor.Background2
+            data.Button.BackgroundTransparency = visible and 0.1 or 0.3
+        end
+    end
+    activeTab = tabName
+end
+
+-- ================================================================
+-- 🏗️ TẠO WINDOW
+-- ================================================================
+local function CreateWindow(settings)
+    local window = {}
+    window.Title = settings.Title or "Hub"
+    window.SubTitle = settings.SubTitle or ""
+    window.Size = settings.Size or UDim2.fromOffset(600, 450)
+    window.MinimizeKey = settings.MinimizeKey or Enum.KeyCode.End
+
+    mainFrame.Size = window.Size
+    mainFrame.Position = UDim2.new(0.5, -window.Size.X.Offset/2, 0.5, -window.Size.Y.Offset/2)
+    titleLabel.Text = window.Title
+
+    -- Toggle visibility bằng phím MinimizeKey
+    UserInputService.InputBegan:Connect(function(input, processed)
+        if processed then return end
+        if input.KeyCode == window.MinimizeKey then
+            mainGui.Enabled = not mainGui.Enabled
+            getgenv().UIToggled = mainGui.Enabled
+        end
+    end)
+
+    -- Hàm AddTab
+    function window:AddTab(tabName)
+        -- Tạo button trên thanh tab
+        local btn = Instance.new("TextButton", tabBar)
+        btn.Size = UDim2.new(0, 100, 0, 30)
+        btn.BackgroundColor3 = UIColor.Background2
+        btn.BackgroundTransparency = 0.3
+        btn.Text = tabName
+        btn.TextColor3 = UIColor.Text
+        btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 14
+        btn.BorderSizePixel = 0
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+        -- Tạo frame chứa nội dung tab (ẩn ban đầu)
+        local tabFrame = Instance.new("ScrollingFrame", contentContainer)
+        tabFrame.Size = UDim2.new(1, 0, 1, 0)
+        tabFrame.BackgroundTransparency = 1
+        tabFrame.BorderSizePixel = 0
+        tabFrame.ScrollBarThickness = 4
+        tabFrame.ScrollBarImageColor3 = UIColor.Accent
+        tabFrame.Visible = false
+        tabFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- sẽ tự động mở rộng
+
+        local layout = Instance.new("UIListLayout", tabFrame)
+        layout.Padding = UDim.new(0, 10)
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+        -- Lưu thông tin tab
+        local tabData = {
+            Name = tabName,
+            Frame = tabFrame,
+            Button = btn,
+            Layout = layout,
+            LeftGroupboxes = {},
+            RightGroupboxes = {},
+        }
+        tabs[tabName] = tabData
+
+        -- Sự kiện click để chuyển tab
+        btn.MouseButton1Click:Connect(function()
+            switchTab(tabName)
+        end)
+
+        -- Nếu là tab đầu tiên, kích hoạt luôn
+        if #tabs == 1 then
+            switchTab(tabName)
+        end
+
+        -- Hàm thêm groupbox
+        local function addGroupbox(side, title)
+            local groupFrame = Instance.new("Frame", tabFrame)
+            groupFrame.Size = UDim2.new(0.45, 0, 0, 50) -- chiều cao tự động
+            groupFrame.BackgroundColor3 = UIColor.Background1
+            groupFrame.BackgroundTransparency = 0.2
+            groupFrame.BorderSizePixel = 0
+            Instance.new("UICorner", groupFrame).CornerRadius = UDim.new(0, 6)
+
+            local titleLabel = Instance.new("TextLabel", groupFrame)
+            titleLabel.Size = UDim2.new(1, -12, 0, 24)
+            titleLabel.Position = UDim2.new(0, 6, 0, 4)
+            titleLabel.BackgroundTransparency = 1
+            titleLabel.Text = title or " "
+            titleLabel.TextColor3 = UIColor.TitleText
+            titleLabel.Font = Enum.Font.GothamBold
+            titleLabel.TextSize = 14
+            titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+            local content = Instance.new("Frame", groupFrame)
+            content.Size = UDim2.new(1, -12, 1, -34)
+            content.Position = UDim2.new(0, 6, 0, 30)
+            content.BackgroundTransparency = 1
+
+            local contentLayout = Instance.new("UIListLayout", content)
+            contentLayout.Padding = UDim.new(0, 6)
+            contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            contentLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+            -- Cập nhật chiều cao groupbox khi thêm control
+            local function updateHeight()
+                local totalHeight = 0
+                for _, child in pairs(content:GetChildren()) do
+                    if child:IsA("Frame") or child:IsA("TextButton") or child:IsA("TextBox") then
+                        totalHeight = totalHeight + child.Size.Y.Offset + 6
+                    end
+                end
+                groupFrame.Size = UDim2.new(0.45, 0, 0, math.max(50, totalHeight + 40))
+            end
+
+            -- Trả về object groupbox
+            local group = {}
+            group.Frame = groupFrame
+            group.Content = content
+
+            -- Các hàm Add...
+            function group:AddToggle(id, settings)
+                local label = settings.Title or id
+                local default = settings.Default or false
+                local callback = settings.Callback or function() end
+
+                local frame = Instance.new("Frame", content)
+                frame.Size = UDim2.new(1, 0, 0, 32)
+                frame.BackgroundTransparency = 1
+
+                local lbl = Instance.new("TextLabel", frame)
+                lbl.Size = UDim2.new(0.7, -10, 1, 0)
+                lbl.BackgroundTransparency = 1
+                lbl.Text = label
+                lbl.TextColor3 = UIColor.Text
+                lbl.Font = Enum.Font.Gotham
+                lbl.TextSize = 14
+                lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+                local toggleBtn = Instance.new("TextButton", frame)
+                toggleBtn.Size = UDim2.new(0, 50, 0, 26)
+                toggleBtn.Position = UDim2.new(1, -55, 0.5, -13)
+                toggleBtn.BackgroundColor3 = default and UIColor.ToggleChecked or UIColor.Button
+                toggleBtn.Text = default and "ON" or "OFF"
+                toggleBtn.TextColor3 = Color3.new(1,1,1)
+                toggleBtn.Font = Enum.Font.GothamBold
+                toggleBtn.TextSize = 13
+                toggleBtn.BorderSizePixel = 0
+                Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 13)
+
+                local state = default
+                toggleBtn.MouseButton1Click:Connect(function()
+                    state = not state
+                    toggleBtn.BackgroundColor3 = state and UIColor.ToggleChecked or UIColor.Button
+                    toggleBtn.Text = state and "ON" or "OFF"
+                    if callback then callback(state) end
+                end)
+
+                updateHeight()
+
+                local obj = {}
+                function obj:OnChanged(fn)
+                    local oldCb = callback
+                    callback = function(v)
+                        if oldCb then oldCb(v) end
+                        if fn then fn(v) end
+                    end
+                end
+                function obj:SetStage(v) state = v; toggleBtn.BackgroundColor3 = v and UIColor.ToggleChecked or UIColor.Button; toggleBtn.Text = v and "ON" or "OFF"; end
+                function obj:GetValue() return state end
+                function obj:SetValue(v) obj:SetStage(v) end
+                return obj
+            end
+
+            function group:AddButton(settings, callback)
+                local label = settings.Title or settings or "Button"
+                local btn = Instance.new("TextButton", content)
+                btn.Size = UDim2.new(1, 0, 0, 32)
+                btn.BackgroundColor3 = UIColor.Button
+                btn.Text = label
+                btn.TextColor3 = UIColor.Text
+                btn.Font = Enum.Font.GothamBold
+                btn.TextSize = 14
+                btn.BorderSizePixel = 0
+                Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+                btn.MouseButton1Click:Connect(function()
+                    if callback then callback() end
+                end)
+                updateHeight()
+                local obj = {}
+                return obj
+            end
+
+            function group:AddDropdown(id, settings)
+                local label = settings.Title or id
+                local values = settings.Values or {}
+                local default = settings.Default or values[1] or ""
+                local callback = settings.Callback or function() end
+                local multi = settings.Multi or false
+
+                local frame = Instance.new("Frame", content)
+                frame.Size = UDim2.new(1, 0, 0, 38)
+                frame.BackgroundTransparency = 1
+
+                local lbl = Instance.new("TextLabel", frame)
+                lbl.Size = UDim2.new(0.5, -5, 1, 0)
+                lbl.BackgroundTransparency = 1
+                lbl.Text = label
+                lbl.TextColor3 = UIColor.Text
+                lbl.Font = Enum.Font.Gotham
+                lbl.TextSize = 14
+                lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+                local dropdownBtn = Instance.new("TextButton", frame)
+                dropdownBtn.Size = UDim2.new(0.4, 0, 0, 28)
+                dropdownBtn.Position = UDim2.new(0.55, 0, 0.5, -14)
+                dropdownBtn.BackgroundColor3 = UIColor.Background2
+                dropdownBtn.Text = default
+                dropdownBtn.TextColor3 = UIColor.Text
+                dropdownBtn.Font = Enum.Font.Gotham
+                dropdownBtn.TextSize = 13
+                dropdownBtn.BorderSizePixel = 0
+                Instance.new("UICorner", dropdownBtn).CornerRadius = UDim.new(0, 6)
+
+                local selected = default
+                local options = {}
+                for _, v in pairs(values) do options[v] = true end
+
+                dropdownBtn.MouseButton1Click:Connect(function()
+                    -- Tạo input box để nhập hoặc chọn
+                    local input = Instance.new("TextBox", frame)
+                    input.Size = UDim2.new(0.4, 0, 0, 28)
+                    input.Position = UDim2.new(0.55, 0, 0.5, -14)
+                    input.BackgroundColor3 = UIColor.Background3
+                    input.Text = selected
+                    input.TextColor3 = UIColor.Text
+                    input.Font = Enum.Font.Gotham
+                    input.TextSize = 13
+                    input.BorderSizePixel = 0
+                    input.PlaceholderText = "Nhập lựa chọn..."
+                    Instance.new("UICorner", input).CornerRadius = UDim.new(0, 6)
+                    input.Visible = true
+                    dropdownBtn.Visible = false
+
+                    input.FocusLost:Connect(function()
+                        local val = input.Text
+                        if val ~= "" then
+                            selected = val
+                            dropdownBtn.Text = val
+                            if callback then callback(val) end
+                        end
+                        input:Destroy()
+                        dropdownBtn.Visible = true
+                    end)
+                end)
+
+                updateHeight()
+                local obj = {}
+                function obj:OnChanged(fn)
+                    local oldCb = callback
+                    callback = function(v)
+                        if oldCb then oldCb(v) end
+                        if fn then fn(v) end
+                    end
+                end
+                function obj:SetValue(v)
+                    selected = v
+                    dropdownBtn.Text = v
+                    if callback then callback(v) end
+                end
+                function obj:GetValue() return selected end
+                function obj:GetNewList(list)
+                    values = list or {}
+                    options = {}
+                    for _, v in pairs(values) do options[v] = true end
+                    if not options[selected] then selected = values[1] or ""; dropdownBtn.Text = selected end
+                end
+                function obj:ClearText() dropdownBtn.Text = ""; selected = "" end
+                return obj
+            end
+
+            function group:AddSlider(settings)
+                local label = settings.Title or "Slider"
+                local min = settings.Min or 0
+                local max = settings.Max or 100
+                local default = settings.Default or 50
+                local callback = settings.Callback or function() end
+
+                local frame = Instance.new("Frame", content)
+                frame.Size = UDim2.new(1, 0, 0, 46)
+                frame.BackgroundTransparency = 1
+
+                local lbl = Instance.new("TextLabel", frame)
+                lbl.Size = UDim2.new(1, 0, 0, 20)
+                lbl.BackgroundTransparency = 1
+                lbl.Text = label .. ": " .. tostring(default)
+                lbl.TextColor3 = UIColor.Text
+                lbl.Font = Enum.Font.Gotham
+                lbl.TextSize = 14
+
+                local sliderBox = Instance.new("TextBox", frame)
+                sliderBox.Size = UDim2.new(0.8, 0, 0, 24)
+                sliderBox.Position = UDim2.new(0.1, 0, 0, 22)
+                sliderBox.BackgroundColor3 = UIColor.Background2
+                sliderBox.Text = tostring(default)
+                sliderBox.TextColor3 = UIColor.Text
+                sliderBox.Font = Enum.Font.Gotham
+                sliderBox.TextSize = 14
+                sliderBox.BorderSizePixel = 0
+                Instance.new("UICorner", sliderBox).CornerRadius = UDim.new(0, 6)
+
+                local value = default
+                sliderBox.FocusLost:Connect(function()
+                    local num = tonumber(sliderBox.Text)
+                    if num then
+                        value = math.clamp(num, min, max)
+                        sliderBox.Text = tostring(value)
+                        lbl.Text = label .. ": " .. tostring(value)
+                        if callback then callback(value) end
+                    else
+                        sliderBox.Text = tostring(value)
+                    end
+                end)
+
+                updateHeight()
+                local obj = {}
+                function obj:OnChanged(fn)
+                    local oldCb = callback
+                    callback = function(v)
+                        if oldCb then oldCb(v) end
+                        if fn then fn(v) end
+                    end
+                end
+                function obj:SetValue(v)
+                    value = v
+                    sliderBox.Text = tostring(v)
+                    lbl.Text = label .. ": " .. tostring(v)
+                    if callback then callback(v) end
+                end
+                function obj:GetValue() return value end
+                return obj
+            end
+
+            function group:AddInput(id, settings)
+                local label = settings.Title or id
+                local default = settings.Default or ""
+                local placeholder = settings.Placeholder or ""
+                local numeric = settings.Numeric or false
+                local callback = settings.Callback or function() end
+
+                local frame = Instance.new("Frame", content)
+                frame.Size = UDim2.new(1, 0, 0, 38)
+                frame.BackgroundTransparency = 1
+
+                local lbl = Instance.new("TextLabel", frame)
+                lbl.Size = UDim2.new(0.4, -5, 1, 0)
+                lbl.BackgroundTransparency = 1
+                lbl.Text = label
+                lbl.TextColor3 = UIColor.Text
+                lbl.Font = Enum.Font.Gotham
+                lbl.TextSize = 14
+                lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+                local inputBox = Instance.new("TextBox", frame)
+                inputBox.Size = UDim2.new(0.5, 0, 0, 28)
+                inputBox.Position = UDim2.new(0.45, 0, 0.5, -14)
+                inputBox.BackgroundColor3 = UIColor.Background2
+                inputBox.Text = default
+                inputBox.TextColor3 = UIColor.Text
+                inputBox.Font = Enum.Font.Gotham
+                inputBox.TextSize = 13
+                inputBox.BorderSizePixel = 0
+                inputBox.PlaceholderText = placeholder
+                Instance.new("UICorner", inputBox).CornerRadius = UDim.new(0, 6)
+
+                inputBox.FocusLost:Connect(function()
+                    if numeric then
+                        local num = tonumber(inputBox.Text)
+                        if num then
+                            if callback then callback(num) end
+                        end
+                    else
+                        if callback then callback(inputBox.Text) end
+                    end
+                end)
+
+                updateHeight()
+                local obj = {}
+                function obj:OnChanged(fn)
+                    local oldCb = callback
+                    callback = function(v)
+                        if oldCb then oldCb(v) end
+                        if fn then fn(v) end
+                    end
+                end
+                function obj:SetValue(v)
+                    inputBox.Text = tostring(v)
+                    if callback then callback(v) end
+                end
+                function obj:GetValue() return inputBox.Text end
+                return obj
+            end
+
+            function group:AddLabel(text)
+                local lbl = Instance.new("TextLabel", content)
+                lbl.Size = UDim2.new(1, 0, 0, 24)
+                lbl.BackgroundTransparency = 1
+                lbl.Text = text or ""
+                lbl.TextColor3 = UIColor.Text
+                lbl.Font = Enum.Font.Gotham
+                lbl.TextSize = 14
+                lbl.TextWrapped = true
+                lbl.TextXAlignment = Enum.TextXAlignment.Left
+                updateHeight()
+
+                local obj = {}
+                function obj:SetText(t) lbl.Text = t end
+                function obj:SetDesc(t) lbl.Text = t end
+                return obj
+            end
+
+            return group
+        end
+
+        -- Thêm các phương thức vào tab object
+        local tabObj = {}
+        function tabObj:AddLeftGroupbox(title)
+            local group = addGroupbox("left", title)
+            table.insert(tabData.LeftGroupboxes, group)
+            return group
+        end
+        function tabObj:AddRightGroupbox(title)
+            local group = addGroupbox("right", title)
+            table.insert(tabData.RightGroupboxes, group)
+            return group
+        end
+        -- Thêm AddSection để tương thích với script (nó sẽ tạo groupbox trái/phải luân phiên)
+        local leftRightToggle = true
+        function tabObj:AddSection(title)
+            if leftRightToggle then
+                local g = self:AddLeftGroupbox(title)
+                leftRightToggle = false
+                return g
+            else
+                local g = self:AddRightGroupbox(title)
+                leftRightToggle = true
+                return g
+            end
+        end
+
+        return tabObj
+    end
+
+    return window
+end
+
+-- ================================================================
+-- 🔔 NOTIFICATION
+-- ================================================================
+local function Notify(settings)
+    local title = settings.Title or ""
+    local desc = settings.Description or ""
+    local duration = settings.Duration or 3
+    local text = desc ~= "" and (title .. "\n" .. desc) or title
+
+    local frame = Instance.new("Frame", notiContainer)
+    frame.Size = UDim2.new(1, 0, 0, 50)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    frame.BackgroundTransparency = 0.2
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+    local lbl = Instance.new("TextLabel", frame)
+    lbl.Size = UDim2.new(1, -10, 1, 0)
+    lbl.Position = UDim2.new(0, 5, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lbl.Font = Enum.Font.Gotham
+    lbl.TextSize = 14
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    task.wait(0.1)
+    frame.Visible = true
+
+    task.wait(duration)
+    TweenService:Create(frame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+    task.wait(0.3)
+    frame:Destroy()
+end
+
+-- ================================================================
+-- 📦 EXPORT THƯ VIỆN
+-- ================================================================
+local Library = {
+    CreateWindow = CreateWindow,
+    Notify = Notify,
+    AccentColor = UIColor.Accent,
+    SetTheme = function(theme) end, -- placeholder
+}
+
+getgenv().Library = Library
+getgenv().Window = nil
+
+-- Tạo cửa sổ mặc định (nếu script không tự tạo)
+-- Script Blox Fruits sẽ tự gọi Library:CreateWindow, nên không cần tạo ở đây.
+
+print("✅ Night Mystic Library đã sẵn sàng!")
