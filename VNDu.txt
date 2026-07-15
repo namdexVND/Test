@@ -1,0 +1,1293 @@
+-- ts file was generated at https://discord.gg/vFTs2v3wSg
+local fenv = getfenv()
+
+-- [HookOP] operations_hooked=runtime_all
+getgenv().Nousigi = true
+local lol1 = game:GetService("Players")
+lol1.LocalPlayer.PlayerGui:FindFirstChild("TouchGui")
+getgenv().UIColor = {
+    ["Background 1 Color"] = Color3.fromRGB(22, 22, 22),
+    ["Background 1 Transparency"] = 0.05,
+    ["Background 2 Color"] = Color3.fromRGB(30, 30, 30),
+    ["Background 3 Color"] = Color3.fromRGB(25, 25, 25),
+    ["Background Image"] = "",
+    ["Background Main Color"] = Color3.fromRGB(15, 15, 15),
+    ["Border Color"] = Color3.fromRGB(50, 50, 50),
+    ["Box Highlight Color"] = Color3.fromRGB(200, 40, 40),
+    ["Button Color"] = Color3.fromRGB(35, 35, 35),
+    ["Click Effect Color"] = Color3.fromRGB(200, 40, 40),
+    ["Dropdown Icon Color"] = Color3.fromRGB(200, 40, 40),
+    ["Dropdown Selected Check Color"] = Color3.fromRGB(255, 255, 255),
+    ["Dropdown Selected Color"] = Color3.fromRGB(200, 40, 40),
+    ["GUI Text Color"] = Color3.fromRGB(235, 235, 230),
+    ["Label Color"] = Color3.fromRGB(28, 28, 28),
+    ["Logo Image"] = "rbxassetid://104181747838868",
+    ["Page Selected Color"] = Color3.fromRGB(200, 40, 40),
+    ["Placeholder Text Color"] = Color3.fromRGB(100, 100, 100),
+    ["Search Icon Color"] = Color3.fromRGB(200, 40, 40),
+    ["Search Icon Highlight Color"] = Color3.fromRGB(255, 60, 60),
+    ["Section Text Color"] = Color3.fromRGB(255, 255, 255),
+    ["Section Underline Color"] = Color3.fromRGB(200, 40, 40),
+    ["Setting Icon Color"] = Color3.fromRGB(200, 200, 200),
+    ["Slider Highlight Color"] = Color3.fromRGB(200, 40, 40),
+    ["Slider Line Color"] = Color3.fromRGB(45, 45, 45),
+    ["Text Color"] = Color3.fromRGB(235, 235, 230),
+    ["Text Stroke Transparency"] = 0.8,
+    ["Textbox Highlight Color"] = Color3.fromRGB(200, 40, 40),
+    ["Title Text Color"] = Color3.fromRGB(255, 255, 255),
+    ["Toggle Border Color"] = Color3.fromRGB(70, 70, 70),
+    ["Toggle Checked Color"] = Color3.fromRGB(200, 40, 40),
+    ["Toggle Desc Color"] = Color3.fromRGB(180, 180, 180),
+    ["Tween Animation 1 Speed"] = 0.25,
+    ["Tween Animation 2 Speed"] = 0.5,
+    ["Tween Animation 3 Speed"] = 0.1
+}
+getgenv().AllControls = {}
+getgenv().UIToggled = false
+local lol2 = game:GetService("TweenService")
+local lol3 = game:GetService("UserInputService")
+local lol4 = game:GetService("RunService")
+local lol5 = Instance.new("ScreenGui")
+lol5.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+lol5.Name = "Night Mystic GUI"
+lol5.Enabled = false
+getgenv().ReadyForGuiLoaded = false
+spawn(function()
+    task.wait()
+    if {} == {} then
+    else -- didnt run (else), if id: 30
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 31
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 32
+    end
+    if {} == {} then -- ran, if id: 33
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 34
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 35
+    end
+    if {} == {} then -- ran, if id: 36
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 37
+    end
+    if {} == {} then -- ran, if id: 38
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 39
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 40
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 41
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 42
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 43
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 44
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 45
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 46
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 47
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 48
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 49
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 50
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 51
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 52
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 53
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 54
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 55
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 56
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 57
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 58
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 59
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 60
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 61
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 62
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 63
+    end
+    if {} == {} then -- ran, if id: 64
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 65
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 66
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 67
+    end
+    if {} == {} then -- ran, if id: 68
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 69
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 70
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 71
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 72
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 73
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 74
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 75
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 76
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 77
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 78
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 79
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 80
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 81
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 82
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 83
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 84
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 85
+    end
+    if {} == {} then -- ran, if id: 86
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 87
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 88
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 89
+    end
+    if {} == {} then -- ran, if id: 90
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 91
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 92
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 93
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 94
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 95
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 96
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 97
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 98
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 99
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 100
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 101
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 102
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 103
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 104
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 105
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 106
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 107
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 108
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 109
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 110
+    end
+    if {} == {} then -- ran, if id: 111
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 112
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 113
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 114
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 115
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 116
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 117
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 118
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 119
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 120
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 121
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 122
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 123
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 124
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 125
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 126
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 127
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 128
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 129
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 130
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 131
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 132
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 133
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 134
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 135
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 136
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 137
+    end
+    if {} == {} then -- ran, if id: 138
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 139
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 140
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 141
+    end
+    if {} == {} then -- ran, if id: 142
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 143
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 144
+    end
+    if {} == {} then -- ran, if id: 145
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 146
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 147
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 148
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 149
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 150
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 151
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 152
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 153
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 154
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 155
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 156
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 157
+    end
+    if {} == {} then -- ran, if id: 158
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 159
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 160
+    end
+    if {} == {} then -- ran, if id: 161
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 162
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 163
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 164
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 165
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 166
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 167
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 168
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 169
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 170
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 171
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 172
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 173
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 174
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 175
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 176
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 177
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 178
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 179
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 180
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 181
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 182
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 183
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 184
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 185
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 186
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 187
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 188
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 189
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 190
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 191
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 192
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 193
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 194
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 195
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 196
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 197
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 198
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 199
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 200
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 201
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 202
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 203
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 204
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 205
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 206
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 207
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 208
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 209
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 210
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 211
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 212
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 213
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 214
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 215
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 216
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 217
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 218
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 219
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 220
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 221
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 222
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 223
+    end
+    if {} == {} then -- ran, if id: 224
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 225
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 226
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 227
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 228
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 229
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 230
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 231
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 232
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 233
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 234
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 235
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 236
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 237
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 238
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 239
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 240
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 241
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 242
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 243
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 244
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 245
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 246
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 247
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 248
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 249
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 250
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 251
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 252
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 253
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 254
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 255
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 256
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 257
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 258
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 259
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 260
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 261
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 262
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 263
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 264
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 265
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 266
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 267
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 268
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 269
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 270
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 271
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 272
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 273
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 274
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 275
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 276
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 277
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 278
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 279
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 280
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 281
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 282
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 283
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 284
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 285
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 286
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 287
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 288
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 289
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 290
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 291
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 292
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 293
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 294
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 295
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 296
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 297
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 298
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 299
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 300
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 301
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 302
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 303
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 304
+    end
+    if {} == {} then -- ran, if id: 305
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 306
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 307
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 308
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 309
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 310
+    end
+    if {} == {} then -- ran, if id: 311
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 312
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 313
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 314
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 315
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 316
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 317
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 318
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 319
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 320
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 321
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 322
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 323
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 324
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 325
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 326
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 327
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 328
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 329
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 330
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 331
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 332
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 333
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 334
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 335
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 336
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 337
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 338
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 339
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 340
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 341
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 342
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 343
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 344
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 345
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 346
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 347
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 348
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 349
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 350
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 351
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 352
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 353
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 354
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 355
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 356
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 357
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 358
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 359
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 360
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 361
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 362
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 363
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 364
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 365
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 366
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 367
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 368
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 369
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 370
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 371
+    end
+    if {} == {} then -- ran, if id: 372
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 373
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 374
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 375
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 376
+    end
+    if {} == {} then -- ran, if id: 377
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 378
+    end
+    if {} == {} then -- ran, if id: 379
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 380
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 381
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 382
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 383
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 384
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 385
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 386
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 387
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 388
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 389
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 390
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 391
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 392
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 393
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 394
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 395
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 396
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 397
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 398
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 399
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 400
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 401
+    end
+    if {} == {} then -- ran, if id: 402
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 403
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 404
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 405
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 406
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 407
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 408
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 409
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 410
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 411
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 412
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 413
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 414
+    end
+    if {} == {} then
+    else -- didnt run (else), if id: 415
+    end
+end)
+local lol6 = Instance.new("ScreenGui")
+lol6.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+lol6.Name = "Night Mystic Notification"
+local lol7 = Instance.new("ScreenGui")
+lol7.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+lol7.Name = "LongHiHi Notification \240\159\148\148"
+local lol1 = game:GetService("Players")
+local lol8 = Instance.new("ScreenGui")
+local lol9 = game:GetService("CoreGui")
+lol8.Parent = lol9
+lol8.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+lol8.Name = "NazuXWindowsToggleUltimate"
+local lol10 = Instance.new("ImageButton")
+lol10.Name = "ToggleButton"
+lol10.Parent = lol8
+lol10.Size = UDim2.new(0, 60, 0, 60)
+lol10.Position = UDim2.new(0, 15, 1, -75)
+lol10.Draggable = true
+lol10.AnchorPoint = Vector2.new(0, 1)
+lol10.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+lol10.BackgroundTransparency = 0.2
+lol10.BorderSizePixel = 0
+lol10.AutoButtonColor = false
+lol10.Image = ""
+local lol11 = Instance.new("UICorner")
+lol11.CornerRadius = UDim.new(1, 0)
+lol11.Parent = lol10
+local lol12 = Instance.new("UIStroke")
+lol12.Parent = lol10
+lol12.Color = Color3.fromRGB(255, 255, 255)
+lol12.Thickness = 1.5
+lol12.Transparency = 0.7
+local lol13 = Instance.new("ImageLabel")
+lol13.Parent = lol10
+lol13.AnchorPoint = Vector2.new(0.5, 0.5)
+lol13.Position = UDim2.new(0.5, 0, 0.5, 0)
+lol13.Size = UDim2.new(0, 40, 0, 40)
+lol13.BackgroundTransparency = 1
+lol13.BorderSizePixel = 0
+lol13.ImageColor3 = Color3.fromRGB(255, 255, 255)
+lol13.Image = "rbxassetid://104181747838868"
+lol10.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+lol13.Size = UDim2.new(0, 40, 0, 40)
+local lol14 = lol2:Create(lol10, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+    BackgroundTransparency = 0.25
+})
+local lol15 = lol2:Create(lol10, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+    BackgroundTransparency = 0.2
+})
+local lol16 = lol10.InputBegan:Connect(function(b,d,m,g)
+    return F(E,{b,d,m;g},y,Q)
+end)
+local lol17 = lol10.InputChanged:Connect(function(b)
+    return F(E,{b},y,Q)
+end)
+local lol18 = lol10.InputEnded:Connect(function(b)
+    return F(E,{b},y,Q)
+end)
+local lol19 = lol3.InputChanged:Connect(function(b)
+    return F(E,{b},y,Q)
+end)
+local lol20 = lol10.MouseEnter:Connect(function(b,d,m)
+    return F(E,{b;d,m},y,Q)
+end)
+local lol21 = lol10.MouseLeave:Connect(function(b,d,m)
+    return F(E,{b;d,m},y,Q)
+end)
+local lol22 = lol10.MouseButton1Down:Connect(function(b,d,m,g)
+    return F(E,{b,d,m;g},y,Q)
+end)
+local lol23 = lol10.MouseButton1Click:Connect(function(b,d)
+    return F(E,{b,d},y,Q)
+end)
+local lol24 = Instance.new("Frame")
+local lol25 = Instance.new("UIListLayout")
+lol24.Name = "NotiContainer"
+lol24.Parent = lol6
+lol24.AnchorPoint = Vector2.new(1, 1)
+lol24.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
+lol24.BackgroundTransparency = 1
+lol24.Position = UDim2.new(1, -5, 1, -5)
+lol24.Size = UDim2.new(0, 350, 1, -10)
+lol25.Name = "NotiList"
+lol25.Parent = lol24
+lol25.SortOrder = Enum.SortOrder.LayoutOrder
+lol25.VerticalAlignment = Enum.VerticalAlignment.Bottom
+lol25.Padding = UDim.new(0, 5)
+local lol9 = game:GetService("CoreGui")
+lol5.Parent = lol9
+local lol9 = game:GetService("CoreGui")
+lol6.Parent = lol9
+local lol9 = game:GetService("CoreGui")
+lol7.Parent = lol9
+-- [GlobalHarness] status=ok
+-- [GlobalHarness] error=<none>
+-- [GlobalHarness] last_statement=lol7.Parent = lol9
+-- [GlobalHarness] emitted_lines=1248
+-- [GlobalHarness] elapsed_seconds=0.281
