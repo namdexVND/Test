@@ -1,0 +1,709 @@
+-- ==========================================
+-- UI LIBRARY PRO - PREMIUM UI SYSTEM [FIXED]
+-- Compatible với Blox Fruits & Các game khác
+-- ==========================================
+
+local UILibrary = {}
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+
+-- ==========================================
+-- COLOR CONFIG
+-- ==========================================
+local UIColors = {
+    Background = Color3.fromRGB(15, 15, 15),
+    Element = Color3.fromRGB(35, 35, 35),
+    Text = Color3.fromRGB(235, 235, 230),
+    Accent = Color3.fromRGB(200, 40, 40),
+    Border = Color3.fromRGB(50, 50, 50),
+    Hover = Color3.fromRGB(45, 45, 45),
+}
+
+-- Accent color property
+UILibrary.AccentColor = UIColors.Accent
+
+-- ==========================================
+-- MAIN GUI SETUP
+-- ==========================================
+local MainScreenGui = Instance.new("ScreenGui")
+MainScreenGui.Name = "UILibraryPro"
+MainScreenGui.ResetOnSpawn = false
+MainScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+MainScreenGui.Parent = CoreGui
+
+-- Main Frame
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainWindow"
+MainFrame.Parent = MainScreenGui
+MainFrame.BackgroundColor3 = UIColors.Background
+MainFrame.BackgroundTransparency = 0.1
+MainFrame.Size = UDim2.new(0, 800, 0, 600)
+MainFrame.Position = UDim2.new(0.5, -400, 0.5, -300)
+MainFrame.Draggable = true
+MainFrame.Active = true
+MainFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+-- Top Bar
+local TopBar = Instance.new("Frame")
+TopBar.Name = "TopBar"
+TopBar.Parent = MainFrame
+TopBar.BackgroundColor3 = UILibrary.AccentColor
+TopBar.BackgroundTransparency = 0
+TopBar.Size = UDim2.new(1, 0, 0, 70)
+TopBar.ZIndex = 2
+
+-- Logo/Image
+local LogoImage = Instance.new("ImageLabel")
+LogoImage.Parent = TopBar
+LogoImage.BackgroundTransparency = 1
+LogoImage.Size = UDim2.new(0, 50, 0, 50)
+LogoImage.Position = UDim2.new(0, 10, 0.5, -25)
+LogoImage.Image = "rbxassetid://83109821876237"
+LogoImage.ZIndex = 2
+
+-- Title Label
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Parent = TopBar
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 16
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Size = UDim2.new(0.7, -70, 0, 30)
+TitleLabel.Position = UDim2.new(0, 70, 0, 5)
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.Text = "UI Library Pro"
+TitleLabel.ZIndex = 2
+
+-- Description Label
+local DescLabel = Instance.new("TextLabel")
+DescLabel.Parent = TopBar
+DescLabel.BackgroundTransparency = 1
+DescLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+DescLabel.TextSize = 12
+DescLabel.Font = Enum.Font.Gotham
+DescLabel.Size = UDim2.new(0.7, -70, 0, 25)
+DescLabel.Position = UDim2.new(0, 70, 0, 35)
+DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+DescLabel.Text = "Premium UI Library"
+DescLabel.ZIndex = 2
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "Close"
+CloseButton.Parent = TopBar
+CloseButton.BackgroundColor3 = UIColors.Accent
+CloseButton.BackgroundTransparency = 0
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 18
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Size = UDim2.new(0, 35, 1, 0)
+CloseButton.Position = UDim2.new(1, -35, 0, 0)
+CloseButton.Text = "×"
+CloseButton.ZIndex = 2
+CloseButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+end)
+
+-- Content Frame
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Name = "Content"
+ContentFrame.Parent = MainFrame
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Size = UDim2.new(1, 0, 1, -70)
+ContentFrame.Position = UDim2.new(0, 0, 0, 70)
+ContentFrame.ClipsDescendants = true
+
+-- Tab Menu (Left side)
+local TabMenuFrame = Instance.new("Frame")
+TabMenuFrame.Name = "TabMenu"
+TabMenuFrame.Parent = ContentFrame
+TabMenuFrame.BackgroundColor3 = UIColors.Element
+TabMenuFrame.BackgroundTransparency = 0
+TabMenuFrame.Size = UDim2.new(0, 120, 1, 0)
+
+local TabList = Instance.new("UIListLayout")
+TabList.Parent = TabMenuFrame
+TabList.SortOrder = Enum.SortOrder.LayoutOrder
+TabList.Padding = UDim.new(0, 2)
+
+-- Tab Content (Right side)
+local TabContentFrame = Instance.new("Frame")
+TabContentFrame.Name = "TabContent"
+TabContentFrame.Parent = ContentFrame
+TabContentFrame.BackgroundTransparency = 1
+TabContentFrame.Size = UDim2.new(1, -120, 1, 0)
+TabContentFrame.Position = UDim2.new(0, 120, 0, 0)
+
+-- ==========================================
+-- WINDOW/TAB SYSTEM
+-- ==========================================
+UILibrary.Tabs = {}
+local CurrentTab = nil
+
+local function UpdateWindowStyle(Options)
+    if Options and Options["Title"] then
+        TitleLabel.Text = Options["Title"]
+    end
+    
+    if Options and Options["Desc"] then
+        DescLabel.Text = Options["Desc"]
+    end
+    
+    if Options and Options["Image"] then
+        LogoImage.Image = Options["Image"]
+    end
+end
+
+local function CreateTab(TabName)
+    -- Tab Button
+    local TabButton = Instance.new("TextButton")
+    TabButton.Name = TabName
+    TabButton.Parent = TabMenuFrame
+    TabButton.BackgroundColor3 = UIColors.Element
+    TabButton.BackgroundTransparency = 1
+    TabButton.TextColor3 = UIColors.Text
+    TabButton.TextSize = 11
+    TabButton.Font = Enum.Font.Gotham
+    TabButton.Size = UDim2.new(1, 0, 0, 40)
+    TabButton.Text = TabName
+    TabButton.BorderSizePixel = 0
+    TabButton.TextWrapped = true
+
+    -- Tab Content
+    local TabContent = Instance.new("ScrollingFrame")
+    TabContent.Name = TabName .. "Content"
+    TabContent.Parent = TabContentFrame
+    TabContent.BackgroundTransparency = 1
+    TabContent.BorderSizePixel = 0
+    TabContent.Size = UDim2.new(1, 0, 1, 0)
+    TabContent.ScrollBarThickness = 8
+    TabContent.ScrollBarImageColor3 = UIColors.Accent
+    TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+    TabContent.Visible = false
+
+    local TabContentList = Instance.new("UIListLayout")
+    TabContentList.Parent = TabContent
+    TabContentList.SortOrder = Enum.SortOrder.LayoutOrder
+    TabContentList.Padding = UDim.new(0, 5)
+
+    -- Tab Object
+    local Tab = {}
+    Tab.Name = TabName
+    Tab.Frame = TabContent
+    Tab.Button = TabButton
+    Tab.Elements = {}
+
+    -- Click event
+    TabButton.MouseButton1Click:Connect(function()
+        for _, v in pairs(UILibrary.Tabs) do
+            if v.Frame then v.Frame.Visible = false end
+            if v.Button then 
+                v.Button.BackgroundTransparency = 1
+                v.Button.TextColor3 = UIColors.Text
+            end
+        end
+        TabContent.Visible = true
+        TabButton.BackgroundTransparency = 0
+        TabButton.BackgroundColor3 = UIColors.Accent
+        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        CurrentTab = Tab
+    end)
+
+    -- Add methods
+    function Tab:AddSection(Name)
+        local Section = Instance.new("Frame")
+        Section.Name = Name
+        Section.Parent = TabContent
+        Section.BackgroundTransparency = 1
+        Section.Size = UDim2.new(1, 0, 0, 30)
+
+        local SectionTitle = Instance.new("TextLabel")
+        SectionTitle.Parent = Section
+        SectionTitle.BackgroundTransparency = 1
+        SectionTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        SectionTitle.TextSize = 12
+        SectionTitle.Font = Enum.Font.GothamBold
+        SectionTitle.Size = UDim2.new(1, -10, 0, 20)
+        SectionTitle.Position = UDim2.new(0, 10, 0, 5)
+        SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
+        SectionTitle.Text = Name
+
+        local Divider = Instance.new("Frame")
+        Divider.Parent = Section
+        Divider.BackgroundColor3 = UILibrary.AccentColor
+        Divider.BackgroundTransparency = 0
+        Divider.BorderSizePixel = 0
+        Divider.Size = UDim2.new(0.9, 0, 0, 1)
+        Divider.Position = UDim2.new(0.05, 0, 0, 25)
+
+        return Section
+    end
+
+    function Tab:AddToggle(Identifier, Options)
+        local ToggleContainer = Instance.new("Frame")
+        ToggleContainer.Name = Identifier
+        ToggleContainer.Parent = TabContent
+        ToggleContainer.BackgroundTransparency = 1
+        ToggleContainer.Size = UDim2.new(1, 0, 0, 30)
+
+        local ToggleLabel = Instance.new("TextLabel")
+        ToggleLabel.Parent = ToggleContainer
+        ToggleLabel.BackgroundTransparency = 1
+        ToggleLabel.TextColor3 = UIColors.Text
+        ToggleLabel.TextSize = 11
+        ToggleLabel.Font = Enum.Font.Gotham
+        ToggleLabel.Size = UDim2.new(0.8, 0, 1, 0)
+        ToggleLabel.Position = UDim2.new(0.05, 0, 0, 0)
+        ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        ToggleLabel.Text = Options["Title"] or Identifier
+
+        local ToggleButton = Instance.new("TextButton")
+        ToggleButton.Name = "Toggle"
+        ToggleButton.Parent = ToggleContainer
+        ToggleButton.BackgroundColor3 = UIColors.Element
+        ToggleButton.BackgroundTransparency = 0
+        ToggleButton.BorderSizePixel = 0
+        ToggleButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+        ToggleButton.TextSize = 11
+        ToggleButton.Font = Enum.Font.GothamBold
+        ToggleButton.Size = UDim2.new(0, 35, 0, 20)
+        ToggleButton.Position = UDim2.new(0.85, 0, 0.5, -10)
+        ToggleButton.Text = "OFF"
+
+        local IsToggled = Options["Default"] or false
+        if IsToggled then
+            ToggleButton.Text = "ON"
+            ToggleButton.BackgroundColor3 = UILibrary.AccentColor
+        end
+
+        local ToggleObject = {}
+        ToggleObject.Value = IsToggled
+        ToggleObject.Callback = Options["Callback"] or function() end
+
+        local function UpdateToggle(value)
+            ToggleObject.Value = value
+            if value then
+                ToggleButton.Text = "ON"
+                ToggleButton.BackgroundColor3 = UILibrary.AccentColor
+            else
+                ToggleButton.Text = "OFF"
+                ToggleButton.BackgroundColor3 = UIColors.Element
+            end
+            pcall(ToggleObject.Callback, value)
+        end
+
+        ToggleButton.MouseButton1Click:Connect(function()
+            UpdateToggle(not ToggleObject.Value)
+        end)
+
+        function ToggleObject:SetStage(value)
+            UpdateToggle(value)
+        end
+
+        function ToggleObject:GetValue()
+            return ToggleObject.Value
+        end
+
+        return ToggleObject
+    end
+
+    function Tab:AddButton(Options, Callback)
+        local ButtonContainer = Instance.new("Frame")
+        ButtonContainer.Parent = TabContent
+        ButtonContainer.BackgroundTransparency = 1
+        ButtonContainer.Size = UDim2.new(1, 0, 0, 35)
+
+        local Button = Instance.new("TextButton")
+        Button.Name = "Button"
+        Button.Parent = ButtonContainer
+        Button.BackgroundColor3 = UIColors.Element
+        Button.BackgroundTransparency = 0
+        Button.BorderSizePixel = 0
+        Button.TextColor3 = UIColors.Text
+        Button.TextSize = 12
+        Button.Font = Enum.Font.Gotham
+        Button.Size = UDim2.new(0.9, 0, 1, 0)
+        Button.Position = UDim2.new(0.05, 0, 0, 0)
+        
+        local buttonText = ""
+        if type(Options) == "table" then
+            buttonText = Options["Text"] or Options["Title"] or "Button"
+        else
+            buttonText = Options or "Button"
+        end
+        
+        Button.Text = buttonText
+
+        Button.MouseButton1Click:Connect(function()
+            if Callback then pcall(Callback) end
+        end)
+
+        return Button
+    end
+
+    function Tab:AddLabel(Text)
+        local LabelContainer = Instance.new("Frame")
+        LabelContainer.Parent = TabContent
+        LabelContainer.BackgroundTransparency = 1
+        LabelContainer.Size = UDim2.new(1, 0, 0, 30)
+
+        local Label = Instance.new("TextLabel")
+        Label.Parent = LabelContainer
+        Label.BackgroundTransparency = 1
+        Label.TextColor3 = UIColors.Text
+        Label.TextSize = 10
+        Label.Font = Enum.Font.Gotham
+        Label.Size = UDim2.new(0.9, 0, 1, 0)
+        Label.Position = UDim2.new(0.05, 0, 0, 0)
+        Label.TextWrapped = true
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+        Label.Text = Text
+
+        return Label
+    end
+
+    function Tab:AddParagraph(Options)
+        local ParagraphContainer = Instance.new("Frame")
+        ParagraphContainer.Parent = TabContent
+        ParagraphContainer.BackgroundTransparency = 1
+        ParagraphContainer.Size = UDim2.new(1, 0, 0, 60)
+
+        -- Title
+        local TitleLabel = Instance.new("TextLabel")
+        TitleLabel.Parent = ParagraphContainer
+        TitleLabel.BackgroundTransparency = 1
+        TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TitleLabel.TextSize = 11
+        TitleLabel.Font = Enum.Font.GothamBold
+        TitleLabel.Size = UDim2.new(0.9, 0, 0, 18)
+        TitleLabel.Position = UDim2.new(0.05, 0, 0, 0)
+        TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        TitleLabel.Text = Options["Title"] or "Title"
+
+        -- Description
+        local DescLabel = Instance.new("TextLabel")
+        DescLabel.Parent = ParagraphContainer
+        DescLabel.BackgroundTransparency = 1
+        DescLabel.TextColor3 = UIColors.Text
+        DescLabel.TextSize = 10
+        DescLabel.Font = Enum.Font.Gotham
+        DescLabel.Size = UDim2.new(0.9, 0, 0, 35)
+        DescLabel.Position = UDim2.new(0.05, 0, 0, 18)
+        DescLabel.TextWrapped = true
+        DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+        DescLabel.Text = Options["Description"] or "Description"
+
+        return ParagraphContainer
+    end
+
+    function Tab:AddSlider(Identifier, Options)
+        local SliderContainer = Instance.new("Frame")
+        SliderContainer.Name = Identifier
+        SliderContainer.Parent = TabContent
+        SliderContainer.BackgroundTransparency = 1
+        SliderContainer.Size = UDim2.new(1, 0, 0, 50)
+
+        local SliderLabel = Instance.new("TextLabel")
+        SliderLabel.Parent = SliderContainer
+        SliderLabel.BackgroundTransparency = 1
+        SliderLabel.TextColor3 = UIColors.Text
+        SliderLabel.TextSize = 11
+        SliderLabel.Font = Enum.Font.Gotham
+        SliderLabel.Size = UDim2.new(1, 0, 0, 15)
+        SliderLabel.Position = UDim2.new(0, 10, 0, 0)
+        SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+        SliderLabel.Text = Options["Title"] or "Slider"
+
+        local SliderBackground = Instance.new("Frame")
+        SliderBackground.Parent = SliderContainer
+        SliderBackground.BackgroundColor3 = UIColors.Element
+        SliderBackground.BackgroundTransparency = 0
+        SliderBackground.BorderSizePixel = 0
+        SliderBackground.Size = UDim2.new(0.9, 0, 0, 8)
+        SliderBackground.Position = UDim2.new(0.05, 0, 0, 25)
+
+        local SliderButton = Instance.new("TextButton")
+        SliderButton.Parent = SliderBackground
+        SliderButton.BackgroundColor3 = UILibrary.AccentColor
+        SliderButton.BackgroundTransparency = 0
+        SliderButton.BorderSizePixel = 0
+        SliderButton.Size = UDim2.new(0, 12, 0, 12)
+        SliderButton.Position = UDim2.new(0, 0, 0.5, -6)
+        SliderButton.Text = ""
+
+        local MinValue = Options["Min"] or 0
+        local MaxValue = Options["Max"] or 100
+        local DefaultValue = Options["Default"] or MinValue
+        local OnChanged = Options["Callback"] or nil
+
+        local function UpdateSlider(Position)
+            local Size = SliderBackground.AbsoluteSize.X
+            local Value = math.clamp((Position / Size) * (MaxValue - MinValue) + MinValue, MinValue, MaxValue)
+            SliderButton.Position = UDim2.new(0, math.clamp(Position - 6, 0, Size - 12), 0.5, -6)
+            if OnChanged then
+                pcall(OnChanged, math.floor(Value))
+            end
+        end
+
+        SliderButton.MouseButton1Down:Connect(function()
+            local Connection
+            Connection = RunService.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then
+                    local MouseX = UserInputService:GetMouseLocation().X
+                    local SliderX = SliderBackground.AbsolutePosition.X
+                    UpdateSlider(MouseX - SliderX)
+                end
+            end)
+            UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    Connection:Disconnect()
+                end
+            end)
+        end)
+
+        local SliderObject = {}
+        function SliderObject:OnChanged(Callback)
+            OnChanged = Callback
+            return SliderObject
+        end
+
+        return SliderObject
+    end
+
+    -- NEW: AddDropdown function
+    function Tab:AddDropdown(Identifier, Options)
+        local DropdownContainer = Instance.new("Frame")
+        DropdownContainer.Name = Identifier
+        DropdownContainer.Parent = TabContent
+        DropdownContainer.BackgroundTransparency = 1
+        DropdownContainer.Size = UDim2.new(1, 0, 0, 35)
+
+        local DropdownLabel = Instance.new("TextLabel")
+        DropdownLabel.Parent = DropdownContainer
+        DropdownLabel.BackgroundTransparency = 1
+        DropdownLabel.TextColor3 = UIColors.Text
+        DropdownLabel.TextSize = 11
+        DropdownLabel.Font = Enum.Font.Gotham
+        DropdownLabel.Size = UDim2.new(0.5, 0, 1, 0)
+        DropdownLabel.Position = UDim2.new(0.05, 0, 0, 0)
+        DropdownLabel.TextXAlignment = Enum.TextXAlignment.Left
+        DropdownLabel.Text = Options["Title"] or Identifier
+
+        local DropdownButton = Instance.new("TextButton")
+        DropdownButton.Parent = DropdownContainer
+        DropdownButton.BackgroundColor3 = UIColors.Element
+        DropdownButton.BackgroundTransparency = 0
+        DropdownButton.BorderSizePixel = 0
+        DropdownButton.TextColor3 = UIColors.Text
+        DropdownButton.TextSize = 10
+        DropdownButton.Font = Enum.Font.Gotham
+        DropdownButton.Size = UDim2.new(0.4, 0, 1, 0)
+        DropdownButton.Position = UDim2.new(0.55, 0, 0, 0)
+        DropdownButton.Text = "Select"
+
+        local DropdownObject = {}
+        DropdownObject.Value = nil
+        DropdownObject.Callback = Options["Callback"] or function() end
+        DropdownObject.Values = Options["Values"] or {}
+
+        function DropdownObject:GetValue()
+            return DropdownObject.Value
+        end
+
+        function DropdownObject:SetValue(value)
+            DropdownObject.Value = value
+            DropdownButton.Text = tostring(value)
+            pcall(DropdownObject.Callback, value)
+        end
+
+        DropdownButton.MouseButton1Click:Connect(function()
+            -- Simple dropdown - just cycle through values
+            local values = DropdownObject.Values
+            if #values > 0 then
+                local currentIndex = 1
+                for i, v in ipairs(values) do
+                    if v == DropdownObject.Value then
+                        currentIndex = i
+                        break
+                    end
+                end
+                local nextIndex = currentIndex % #values + 1
+                DropdownObject:SetValue(values[nextIndex])
+            end
+        end)
+
+        return DropdownObject
+    end
+
+    -- NEW: AddInput function
+    function Tab:AddInput(Identifier, Options)
+        local InputContainer = Instance.new("Frame")
+        InputContainer.Name = Identifier
+        InputContainer.Parent = TabContent
+        InputContainer.BackgroundTransparency = 1
+        InputContainer.Size = UDim2.new(1, 0, 0, 35)
+
+        local InputLabel = Instance.new("TextLabel")
+        InputLabel.Parent = InputContainer
+        InputLabel.BackgroundTransparency = 1
+        InputLabel.TextColor3 = UIColors.Text
+        InputLabel.TextSize = 11
+        InputLabel.Font = Enum.Font.Gotham
+        InputLabel.Size = UDim2.new(0.5, 0, 1, 0)
+        InputLabel.Position = UDim2.new(0.05, 0, 0, 0)
+        InputLabel.TextXAlignment = Enum.TextXAlignment.Left
+        InputLabel.Text = Options["Title"] or Identifier
+
+        local InputBox = Instance.new("TextBox")
+        InputBox.Parent = InputContainer
+        InputBox.BackgroundColor3 = UIColors.Element
+        InputBox.BackgroundTransparency = 0
+        InputBox.BorderSizePixel = 0
+        InputBox.TextColor3 = UIColors.Text
+        InputBox.TextSize = 11
+        InputBox.Font = Enum.Font.Gotham
+        InputBox.Size = UDim2.new(0.4, 0, 1, 0)
+        InputBox.Position = UDim2.new(0.55, 0, 0, 0)
+        InputBox.PlaceholderText = Options["Placeholder"] or ""
+        InputBox.ClearTextOnFocus = false
+
+        local InputObject = {}
+        InputObject.Value = ""
+        InputObject.Callback = Options["Callback"] or function() end
+
+        function InputObject:GetValue()
+            return InputBox.Text
+        end
+
+        function InputObject:SetValue(value)
+            InputBox.Text = tostring(value)
+            InputObject.Value = value
+            pcall(InputObject.Callback, value)
+        end
+
+        InputBox.FocusLost:Connect(function()
+            InputObject.Value = InputBox.Text
+            pcall(InputObject.Callback, InputBox.Text)
+        end)
+
+        return InputObject
+    end
+
+    -- NEW: AddLeftGroupbox and AddRightGroupbox (for compatibility)
+    function Tab:AddLeftGroupbox(Name)
+        return self:AddSection(Name or "")
+    end
+
+    function Tab:AddRightGroupbox(Name)
+        return self:AddSection(Name or "")
+    end
+
+    UILibrary.Tabs[TabName] = Tab
+    
+    -- Auto-select first tab
+    if #UILibrary.Tabs == 1 then
+        TabButton:MouseButton1Click()
+    end
+
+    return Tab
+end
+
+-- ==========================================
+-- PUBLIC API
+-- ==========================================
+function UILibrary:CreateWindow(Options)
+    UpdateWindowStyle(Options)
+    return CreateTab(Options["Title"] or "Window")
+end
+
+function UILibrary:CreateTab(TabName)
+    return CreateTab(TabName)
+end
+
+function UILibrary:SetTitle(Title)
+    TitleLabel.Text = Title
+end
+
+function UILibrary:SetDesc(Desc)
+    DescLabel.Text = Desc
+end
+
+function UILibrary:SetImage(Image)
+    LogoImage.Image = Image
+end
+
+function UILibrary:Toggle()
+    MainFrame.Visible = not MainFrame.Visible
+end
+
+function UILibrary:Notify(Options)
+    local NotifyGui = Instance.new("ScreenGui")
+    NotifyGui.Name = "Notification"
+    NotifyGui.ResetOnSpawn = false
+    NotifyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    NotifyGui.Parent = CoreGui
+
+    local NotifyFrame = Instance.new("Frame")
+    NotifyFrame.Parent = NotifyGui
+    NotifyFrame.BackgroundColor3 = UIColors.Background
+    NotifyFrame.BackgroundTransparency = 0.1
+    NotifyFrame.Size = UDim2.new(0, 350, 0, 100)
+    NotifyFrame.Position = UDim2.new(1, -360, 1, -110)
+    NotifyFrame.BorderSizePixel = 0
+
+    -- Border
+    local BorderFrame = Instance.new("Frame")
+    BorderFrame.Parent = NotifyFrame
+    BorderFrame.BackgroundColor3 = UILibrary.AccentColor
+    BorderFrame.BackgroundTransparency = 0
+    BorderFrame.Size = UDim2.new(0, 3, 1, 0)
+    BorderFrame.BorderSizePixel = 0
+
+    -- Title
+    local TitleNotify = Instance.new("TextLabel")
+    TitleNotify.Parent = NotifyFrame
+    TitleNotify.BackgroundTransparency = 1
+    TitleNotify.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleNotify.TextSize = 12
+    TitleNotify.Font = Enum.Font.GothamBold
+    TitleNotify.Size = UDim2.new(1, -10, 0, 25)
+    TitleNotify.Position = UDim2.new(0, 10, 0, 5)
+    TitleNotify.TextXAlignment = Enum.TextXAlignment.Left
+    TitleNotify.Text = Options.Title or "Notification"
+
+    -- Description
+    local DescNotify = Instance.new("TextLabel")
+    DescNotify.Parent = NotifyFrame
+    DescNotify.BackgroundTransparency = 1
+    DescNotify.TextColor3 = UIColors.Text
+    DescNotify.TextSize = 10
+    DescNotify.Font = Enum.Font.Gotham
+    DescNotify.Size = UDim2.new(1, -15, 0, 60)
+    DescNotify.Position = UDim2.new(0, 10, 0, 30)
+    DescNotify.TextWrapped = true
+    DescNotify.TextXAlignment = Enum.TextXAlignment.Left
+    DescNotify.Text = Options.Description or ""
+
+    -- Auto-remove after duration
+    local Duration = Options.Duration or 3
+    game:GetService("Debris"):AddItem(NotifyGui, Duration)
+end
+
+-- Toggle Shortcut (Insert key)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.Insert then
+        UILibrary:Toggle()
+    end
+end)
+
+-- ==========================================
+-- RETURN & SETUP GLOBAL
+-- ==========================================
+getgenv().UILibraryPro = UILibrary
+
+return UILibrary
