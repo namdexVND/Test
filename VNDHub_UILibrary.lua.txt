@@ -1,0 +1,978 @@
+-- ==========================================
+-- VND HUB UI LIBRARY - BLOX FRUIT STYLE
+-- Thư viện UI hoàn chỉnh
+-- ==========================================
+
+local VNDHubUI = {}
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local LocalPlayer = Players.LocalPlayer
+
+-- ==========================================
+-- COLOR CONFIG
+-- ==========================================
+local Colors = {
+	Background = Color3.fromRGB(15, 15, 15),
+	Sidebar = Color3.fromRGB(25, 25, 25),
+	Element = Color3.fromRGB(35, 35, 35),
+	Text = Color3.fromRGB(235, 235, 230),
+	TextSecondary = Color3.fromRGB(150, 150, 150),
+	Accent = Color3.fromRGB(200, 40, 40),
+	AccentHover = Color3.fromRGB(220, 60, 60),
+	Border = Color3.fromRGB(50, 50, 50),
+	Hover = Color3.fromRGB(45, 45, 45),
+	Green = Color3.fromRGB(0, 200, 100),
+	Yellow = Color3.fromRGB(255, 200, 0),
+}
+
+-- ==========================================
+-- MAIN GUI SETUP
+-- ==========================================
+local MainScreenGui = Instance.new("ScreenGui")
+MainScreenGui.Name = "VNDHubUI"
+MainScreenGui.ResetOnSpawn = false
+MainScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+MainScreenGui.Parent = CoreGui
+
+-- Main Window Frame
+local MainWindow = Instance.new("Frame")
+MainWindow.Name = "MainWindow"
+MainWindow.Parent = MainScreenGui
+MainWindow.BackgroundColor3 = Colors.Background
+MainWindow.BackgroundTransparency = 0
+MainWindow.Size = UDim2.new(0, 1000, 0, 650)
+MainWindow.Position = UDim2.new(0.5, -500, 0.5, -325)
+MainWindow.BorderSizePixel = 0
+MainWindow.Draggable = true
+MainWindow.Active = true
+
+-- Add UICorner để bo góc
+local WindowCorner = Instance.new("UICorner")
+WindowCorner.CornerRadius = UDim.new(0, 10)
+WindowCorner.Parent = MainWindow
+
+-- ==========================================
+-- TOP BAR
+-- ==========================================
+local TopBar = Instance.new("Frame")
+TopBar.Name = "TopBar"
+TopBar.Parent = MainWindow
+TopBar.BackgroundColor3 = Colors.Accent
+TopBar.BackgroundTransparency = 0
+TopBar.Size = UDim2.new(1, 0, 0, 60)
+TopBar.BorderSizePixel = 0
+
+-- Top Bar Corner
+local TopBarCorner = Instance.new("UICorner")
+TopBarCorner.CornerRadius = UDim.new(0, 10)
+TopBarCorner.Parent = TopBar
+
+-- Logo Circle
+local LogoCircle = Instance.new("Frame")
+LogoCircle.Name = "LogoCircle"
+LogoCircle.Parent = TopBar
+LogoCircle.BackgroundColor3 = Colors.Background
+LogoCircle.Size = UDim2.new(0, 45, 0, 45)
+LogoCircle.Position = UDim2.new(0, 10, 0.5, -22)
+LogoCircle.BorderSizePixel = 0
+
+local LogoCorner = Instance.new("UICorner")
+LogoCorner.CornerRadius = UDim.new(0, 10)
+LogoCorner.Parent = LogoCircle
+
+local LogoText = Instance.new("TextLabel")
+LogoText.Parent = LogoCircle
+LogoText.BackgroundTransparency = 1
+LogoText.TextColor3 = Colors.Accent
+LogoText.TextSize = 24
+LogoText.Font = Enum.Font.GothamBold
+LogoText.Size = UDim2.new(1, 0, 1, 0)
+LogoText.Text = "◆"
+
+-- Title
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "Title"
+TitleLabel.Parent = TopBar
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.TextColor3 = Colors.Text
+TitleLabel.TextSize = 18
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Size = UDim2.new(0.6, -70, 0, 30)
+TitleLabel.Position = UDim2.new(0, 65, 0, 5)
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.Text = "VND HUB"
+
+-- Description
+local DescLabel = Instance.new("TextLabel")
+DescLabel.Name = "Desc"
+DescLabel.Parent = TopBar
+DescLabel.BackgroundTransparency = 1
+DescLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+DescLabel.TextSize = 12
+DescLabel.Font = Enum.Font.Gotham
+DescLabel.Size = UDim2.new(0.6, -70, 0, 25)
+DescLabel.Position = UDim2.new(0, 65, 0, 30)
+DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+DescLabel.Text = "Blox Fruit Premium UI"
+
+-- Close Button
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = TopBar
+CloseButton.BackgroundColor3 = Colors.Background
+CloseButton.BackgroundTransparency = 1
+CloseButton.TextColor3 = Colors.Text
+CloseButton.TextSize = 24
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Size = UDim2.new(0, 50, 1, 0)
+CloseButton.Position = UDim2.new(1, -50, 0, 0)
+CloseButton.Text = "✕"
+CloseButton.BorderSizePixel = 0
+
+-- ==========================================
+-- CONTENT AREA
+-- ==========================================
+local ContentArea = Instance.new("Frame")
+ContentArea.Name = "ContentArea"
+ContentArea.Parent = MainWindow
+ContentArea.BackgroundTransparency = 1
+ContentArea.Size = UDim2.new(1, 0, 1, -60)
+ContentArea.Position = UDim2.new(0, 0, 0, 60)
+ContentArea.BorderSizePixel = 0
+ContentArea.ClipsDescendants = true
+
+-- ==========================================
+-- SIDEBAR
+-- ==========================================
+local Sidebar = Instance.new("Frame")
+Sidebar.Name = "Sidebar"
+Sidebar.Parent = ContentArea
+Sidebar.BackgroundColor3 = Colors.Sidebar
+Sidebar.BackgroundTransparency = 0
+Sidebar.Size = UDim2.new(0, 180, 1, 0)
+Sidebar.BorderSizePixel = 0
+
+-- ==========================================
+-- SEARCH BAR SIDEBAR
+-- ==========================================
+local SearchBarContainer = Instance.new("Frame")
+SearchBarContainer.Name = "SearchBar"
+SearchBarContainer.Parent = Sidebar
+SearchBarContainer.BackgroundColor3 = Colors.Sidebar
+SearchBarContainer.BackgroundTransparency = 0
+SearchBarContainer.Size = UDim2.new(1, 0, 0, 50)
+SearchBarContainer.BorderSizePixel = 0
+
+-- Search Icon
+local SearchIcon = Instance.new("TextLabel")
+SearchIcon.Parent = SearchBarContainer
+SearchIcon.BackgroundTransparency = 1
+SearchIcon.TextColor3 = Colors.Accent
+SearchIcon.TextSize = 14
+SearchIcon.Font = Enum.Font.GothamBold
+SearchIcon.Size = UDim2.new(0, 30, 1, 0)
+SearchIcon.Text = "🔍"
+
+-- Search Input
+local SearchInput = Instance.new("TextBox")
+SearchInput.Parent = SearchBarContainer
+SearchInput.BackgroundColor3 = Colors.Element
+SearchInput.BackgroundTransparency = 0
+SearchInput.TextColor3 = Colors.Text
+SearchInput.TextSize = 11
+SearchInput.Font = Enum.Font.Gotham
+SearchInput.Size = UDim2.new(1, -35, 0, 35)
+SearchInput.Position = UDim2.new(0, 30, 0.5, -17)
+SearchInput.BorderSizePixel = 0
+SearchInput.PlaceholderText = "Search section or Func"
+SearchInput.PlaceholderColor3 = Colors.TextSecondary
+SearchInput.ClearTextOnFocus = false
+
+local SearchInputCorner = Instance.new("UICorner")
+SearchInputCorner.CornerRadius = UDim.new(0, 4)
+SearchInputCorner.Parent = SearchInput
+
+-- Sidebar ScrollingFrame
+local SidebarScroll = Instance.new("ScrollingFrame")
+SidebarScroll.Name = "SidebarScroll"
+SidebarScroll.Parent = Sidebar
+SidebarScroll.BackgroundTransparency = 1
+SidebarScroll.Size = UDim2.new(1, 0, 1, -50)
+SidebarScroll.Position = UDim2.new(0, 0, 0, 50)
+SidebarScroll.ScrollBarThickness = 5
+SidebarScroll.ScrollBarImageColor3 = Colors.Accent
+SidebarScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+SidebarScroll.BorderSizePixel = 0
+
+-- Sidebar List Layout
+local SidebarLayout = Instance.new("UIListLayout")
+SidebarLayout.Parent = SidebarScroll
+SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
+SidebarLayout.Padding = UDim.new(0, 2)
+
+-- Sidebar Padding
+local SidebarPadding = Instance.new("UIPadding")
+SidebarPadding.Parent = SidebarScroll
+SidebarPadding.PaddingTop = UDim.new(0, 5)
+SidebarPadding.PaddingLeft = UDim.new(0, 5)
+SidebarPadding.PaddingRight = UDim.new(0, 5)
+SidebarPadding.PaddingBottom = UDim.new(0, 5)
+
+-- ==========================================
+-- MAIN CONTENT
+-- ==========================================
+local MainContent = Instance.new("Frame")
+MainContent.Name = "MainContent"
+MainContent.Parent = ContentArea
+MainContent.BackgroundColor3 = Colors.Background
+MainContent.BackgroundTransparency = 0
+MainContent.Size = UDim2.new(1, -180, 1, 0)
+MainContent.Position = UDim2.new(0, 180, 0, 0)
+MainContent.BorderSizePixel = 0
+
+-- Main Content ScrollingFrame
+local ContentScroll = Instance.new("ScrollingFrame")
+ContentScroll.Name = "ContentScroll"
+ContentScroll.Parent = MainContent
+ContentScroll.BackgroundTransparency = 1
+ContentScroll.Size = UDim2.new(1, 0, 1, 0)
+ContentScroll.ScrollBarThickness = 8
+ContentScroll.ScrollBarImageColor3 = Colors.Accent
+ContentScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+ContentScroll.BorderSizePixel = 0
+
+-- Content List Layout
+local ContentLayout = Instance.new("UIListLayout")
+ContentLayout.Parent = ContentScroll
+ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ContentLayout.Padding = UDim.new(0, 8)
+
+-- Content Padding
+local ContentPadding = Instance.new("UIPadding")
+ContentPadding.Parent = ContentScroll
+ContentPadding.PaddingTop = UDim.new(0, 10)
+ContentPadding.PaddingLeft = UDim.new(0, 15)
+ContentPadding.PaddingRight = UDim.new(0, 15)
+ContentPadding.PaddingBottom = UDim.new(0, 10)
+
+-- ==========================================
+-- TOGGLE BUTTON (Circular)
+-- ==========================================
+local ToggleGui = Instance.new("ScreenGui")
+ToggleGui.Name = "ToggleGui"
+ToggleGui.ResetOnSpawn = false
+ToggleGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ToggleGui.Parent = CoreGui
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Parent = ToggleGui
+ToggleButton.BackgroundColor3 = Colors.Accent
+ToggleButton.BackgroundTransparency = 0.2
+ToggleButton.BorderSizePixel = 0
+ToggleButton.TextColor3 = Colors.Text
+ToggleButton.TextSize = 24
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.Size = UDim2.new(0, 60, 0, 60)
+ToggleButton.Position = UDim2.new(1, -80, 1, -100)
+ToggleButton.Text = "M"
+ToggleButton.ZIndex = 999
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 30)
+ToggleCorner.Parent = ToggleButton
+
+-- ==========================================
+-- TAB SYSTEM
+-- ==========================================
+VNDHubUI.Tabs = {}
+local CurrentTab = nil
+
+local function CreateTab(TabName)
+	-- Tab Button
+	local TabButton = Instance.new("TextButton")
+	TabButton.Name = TabName
+	TabButton.Parent = SidebarScroll
+	TabButton.BackgroundColor3 = Colors.Sidebar
+	TabButton.BackgroundTransparency = 1
+	TabButton.TextColor3 = Colors.TextSecondary
+	TabButton.TextSize = 12
+	TabButton.Font = Enum.Font.Gotham
+	TabButton.Size = UDim2.new(1, 0, 0, 45)
+	TabButton.BorderSizePixel = 0
+	TabButton.Text = TabName
+	TabButton.TextWrapped = true
+	TabButton.AutomaticSize = Enum.AutomaticSize.Y
+
+	-- Tab Content Frame
+	local TabContent = Instance.new("ScrollingFrame")
+	TabContent.Name = TabName .. "Content"
+	TabContent.Parent = ContentScroll
+	TabContent.BackgroundTransparency = 1
+	TabContent.Size = UDim2.new(1, 0, 1, 0)
+	TabContent.ScrollBarThickness = 0
+	TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+	TabContent.Visible = false
+	TabContent.BorderSizePixel = 0
+
+	local TabContentLayout = Instance.new("UIListLayout")
+	TabContentLayout.Parent = TabContent
+	TabContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	TabContentLayout.Padding = UDim.new(0, 8)
+
+	-- Tab Object
+	local Tab = {}
+	Tab.Name = TabName
+	Tab.Button = TabButton
+	Tab.Frame = TabContent
+	Tab.Layout = TabContentLayout
+	Tab.Elements = {}
+
+	-- Toggle Tab
+	TabButton.MouseButton1Click:Connect(function()
+		for _, v in pairs(VNDHubUI.Tabs) do
+			if v.Frame then v.Frame.Visible = false end
+			if v.Button then
+				v.Button.BackgroundTransparency = 1
+				v.Button.TextColor3 = Colors.TextSecondary
+			end
+		end
+		TabContent.Visible = true
+		TabButton.BackgroundColor3 = Colors.Accent
+		TabButton.BackgroundTransparency = 0.3
+		TabButton.TextColor3 = Colors.Text
+		CurrentTab = Tab
+	end)
+
+	-- ==========================================
+	-- TAB METHODS
+	-- ==========================================
+	
+	function Tab:AddLabel(Options)
+		local LabelContainer = Instance.new("Frame")
+		LabelContainer.Name = Options.Title or "Label"
+		LabelContainer.Parent = TabContent
+		LabelContainer.BackgroundColor3 = Colors.Element
+		LabelContainer.BackgroundTransparency = 0
+		LabelContainer.Size = UDim2.new(1, 0, 0, 45)
+		LabelContainer.BorderSizePixel = 0
+
+		local LabelCorner = Instance.new("UICorner")
+		LabelCorner.CornerRadius = UDim.new(0, 6)
+		LabelCorner.Parent = LabelContainer
+
+		local TitleLabel = Instance.new("TextLabel")
+		TitleLabel.Parent = LabelContainer
+		TitleLabel.BackgroundTransparency = 1
+		TitleLabel.TextColor3 = Colors.Text
+		TitleLabel.TextSize = 12
+		TitleLabel.Font = Enum.Font.GothamBold
+		TitleLabel.Size = UDim2.new(0.5, -10, 1, 0)
+		TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+		TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+		TitleLabel.Text = Options.Title or ""
+
+		local ValueLabel = Instance.new("TextLabel")
+		ValueLabel.Parent = LabelContainer
+		ValueLabel.BackgroundTransparency = 1
+		ValueLabel.TextColor3 = Colors.Accent
+		ValueLabel.TextSize = 12
+		ValueLabel.Font = Enum.Font.GothamBold
+		ValueLabel.Size = UDim2.new(0.5, -10, 1, 0)
+		ValueLabel.Position = UDim2.new(0.5, 0, 0, 0)
+		ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+		ValueLabel.Text = Options.Text or ""
+
+		return {
+			Update = function(self, NewText)
+				ValueLabel.Text = NewText
+			end
+		}
+	end
+
+	function Tab:AddButton(Options)
+		local ButtonContainer = Instance.new("Frame")
+		ButtonContainer.Name = Options.Title or "Button"
+		ButtonContainer.Parent = TabContent
+		ButtonContainer.BackgroundColor3 = Colors.Element
+		ButtonContainer.BackgroundTransparency = 0
+		ButtonContainer.Size = UDim2.new(1, 0, 0, 50)
+		ButtonContainer.BorderSizePixel = 0
+
+		local ButtonCorner = Instance.new("UICorner")
+		ButtonCorner.CornerRadius = UDim.new(0, 6)
+		ButtonCorner.Parent = ButtonContainer
+
+		local Button = Instance.new("TextButton")
+		Button.Parent = ButtonContainer
+		Button.BackgroundColor3 = Colors.Accent
+		Button.BackgroundTransparency = 0
+		Button.TextColor3 = Colors.Text
+		Button.TextSize = 13
+		Button.Font = Enum.Font.GothamBold
+		Button.Size = UDim2.new(1, -20, 0, 35)
+		Button.Position = UDim2.new(0, 10, 0, 7)
+		Button.BorderSizePixel = 0
+		Button.Text = Options.Title or "Button"
+
+		local ButtonCornerInner = Instance.new("UICorner")
+		ButtonCornerInner.CornerRadius = UDim.new(0, 5)
+		ButtonCornerInner.Parent = Button
+
+		Button.MouseEnter:Connect(function()
+			Button.BackgroundColor3 = Colors.AccentHover
+		end)
+
+		Button.MouseLeave:Connect(function()
+			Button.BackgroundColor3 = Colors.Accent
+		end)
+
+		if Options.Callback then
+			Button.MouseButton1Click:Connect(Options.Callback)
+		end
+
+		return Button
+	end
+
+	function Tab:AddToggle(Options)
+		local ToggleContainer = Instance.new("Frame")
+		ToggleContainer.Name = Options.Title or "Toggle"
+		ToggleContainer.Parent = TabContent
+		ToggleContainer.BackgroundColor3 = Colors.Element
+		ToggleContainer.BackgroundTransparency = 0
+		ToggleContainer.Size = UDim2.new(1, 0, 0, 45)
+		ToggleContainer.BorderSizePixel = 0
+
+		local ToggleCornerInner = Instance.new("UICorner")
+		ToggleCornerInner.CornerRadius = UDim.new(0, 6)
+		ToggleCornerInner.Parent = ToggleContainer
+
+		local TitleLabel = Instance.new("TextLabel")
+		TitleLabel.Parent = ToggleContainer
+		TitleLabel.BackgroundTransparency = 1
+		TitleLabel.TextColor3 = Colors.Text
+		TitleLabel.TextSize = 12
+		TitleLabel.Font = Enum.Font.Gotham
+		TitleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+		TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+		TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+		TitleLabel.Text = Options.Title or "Toggle"
+
+		local ToggleButton = Instance.new("TextButton")
+		ToggleButton.Parent = ToggleContainer
+		ToggleButton.BackgroundColor3 = Options.Default and Colors.Green or Colors.Element
+		ToggleButton.BackgroundTransparency = 0
+		ToggleButton.TextColor3 = Colors.Text
+		ToggleButton.TextSize = 12
+		ToggleButton.Font = Enum.Font.GothamBold
+		ToggleButton.Size = UDim2.new(0, 40, 0, 30)
+		ToggleButton.Position = UDim2.new(1, -50, 0.5, -15)
+		ToggleButton.BorderSizePixel = 0
+		ToggleButton.Text = Options.Default and "ON" or "OFF"
+
+		local ToggleButtonCorner = Instance.new("UICorner")
+		ToggleButtonCorner.CornerRadius = UDim.new(0, 4)
+		ToggleButtonCorner.Parent = ToggleButton
+
+		local ToggleState = Options.Default or false
+
+		ToggleButton.MouseButton1Click:Connect(function()
+			ToggleState = not ToggleState
+			ToggleButton.BackgroundColor3 = ToggleState and Colors.Green or Colors.Element
+			ToggleButton.Text = ToggleState and "ON" or "OFF"
+			if Options.Callback then
+				Options.Callback(ToggleState)
+			end
+		end)
+
+		return {
+			GetValue = function()
+				return ToggleState
+			end,
+			SetValue = function(self, Value)
+				ToggleState = Value
+				ToggleButton.BackgroundColor3 = ToggleState and Colors.Green or Colors.Element
+				ToggleButton.Text = ToggleState and "ON" or "OFF"
+			end
+		}
+	end
+
+	function Tab:AddSlider(Options)
+		local SliderContainer = Instance.new("Frame")
+		SliderContainer.Name = Options.Title or "Slider"
+		SliderContainer.Parent = TabContent
+		SliderContainer.BackgroundColor3 = Colors.Element
+		SliderContainer.BackgroundTransparency = 0
+		SliderContainer.Size = UDim2.new(1, 0, 0, 70)
+		SliderContainer.BorderSizePixel = 0
+
+		local SliderCorner = Instance.new("UICorner")
+		SliderCorner.CornerRadius = UDim.new(0, 6)
+		SliderCorner.Parent = SliderContainer
+
+		local TitleLabel = Instance.new("TextLabel")
+		TitleLabel.Parent = SliderContainer
+		TitleLabel.BackgroundTransparency = 1
+		TitleLabel.TextColor3 = Colors.Text
+		TitleLabel.TextSize = 12
+		TitleLabel.Font = Enum.Font.GothamBold
+		TitleLabel.Size = UDim2.new(0.5, -10, 0, 20)
+		TitleLabel.Position = UDim2.new(0, 10, 0, 8)
+		TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+		TitleLabel.Text = Options.Title or "Slider"
+
+		local ValueLabel = Instance.new("TextLabel")
+		ValueLabel.Parent = SliderContainer
+		ValueLabel.BackgroundTransparency = 1
+		ValueLabel.TextColor3 = Colors.Accent
+		ValueLabel.TextSize = 12
+		ValueLabel.Font = Enum.Font.GothamBold
+		ValueLabel.Size = UDim2.new(0.5, -10, 0, 20)
+		ValueLabel.Position = UDim2.new(0.5, 0, 0, 8)
+		ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+		ValueLabel.Text = tostring(Options.Default or 0)
+
+		local SliderBack = Instance.new("Frame")
+		SliderBack.Parent = SliderContainer
+		SliderBack.BackgroundColor3 = Colors.Background
+		SliderBack.BackgroundTransparency = 0
+		SliderBack.Size = UDim2.new(1, -20, 0, 8)
+		SliderBack.Position = UDim2.new(0, 10, 0, 38)
+		SliderBack.BorderSizePixel = 0
+
+		local SliderBackCorner = Instance.new("UICorner")
+		SliderBackCorner.CornerRadius = UDim.new(0, 4)
+		SliderBackCorner.Parent = SliderBack
+
+		local SliderFill = Instance.new("Frame")
+		SliderFill.Parent = SliderBack
+		SliderFill.BackgroundColor3 = Colors.Accent
+		SliderFill.BackgroundTransparency = 0
+		SliderFill.Size = UDim2.new((Options.Default - (Options.Min or 0)) / ((Options.Max or 100) - (Options.Min or 0)), 0, 1, 0)
+		SliderFill.BorderSizePixel = 0
+
+		local SliderFillCorner = Instance.new("UICorner")
+		SliderFillCorner.CornerRadius = UDim.new(0, 4)
+		SliderFillCorner.Parent = SliderFill
+
+		local CurrentValue = Options.Default or 0
+
+		SliderBack.InputBegan:Connect(function(input, gameProcessed)
+			if gameProcessed then return end
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				while UserInputService:IsMouseButtonPressed(Enum.UserInputButton.Left) do
+					local Mouse = LocalPlayer:GetMouse()
+					local SliderSize = SliderBack.AbsoluteSize.X
+					local SliderPos = SliderBack.AbsolutePosition.X
+					local MousePos = Mouse.X
+					local ClickPos = MousePos - SliderPos
+					local Percentage = math.clamp(ClickPos / SliderSize, 0, 1)
+					local Value = math.round(Percentage * ((Options.Max or 100) - (Options.Min or 0)) + (Options.Min or 0))
+					CurrentValue = Value
+					SliderFill.Size = UDim2.new(Percentage, 0, 1, 0)
+					ValueLabel.Text = tostring(Value)
+					if Options.Callback then
+						Options.Callback(Value)
+					end
+					game:GetService("RunService").RenderStepped:Wait()
+				end
+			end
+		end)
+
+		return {
+			GetValue = function()
+				return CurrentValue
+			end,
+			SetValue = function(self, Value)
+				CurrentValue = Value
+				local Percentage = (Value - (Options.Min or 0)) / ((Options.Max or 100) - (Options.Min or 0))
+				SliderFill.Size = UDim2.new(Percentage, 0, 1, 0)
+				ValueLabel.Text = tostring(Value)
+			end
+		}
+	end
+
+	function Tab:AddDropdown(Options)
+		local DropdownContainer = Instance.new("Frame")
+		DropdownContainer.Name = Options.Title or "Dropdown"
+		DropdownContainer.Parent = TabContent
+		DropdownContainer.BackgroundColor3 = Colors.Element
+		DropdownContainer.BackgroundTransparency = 0
+		DropdownContainer.Size = UDim2.new(1, 0, 0, 45)
+		DropdownContainer.BorderSizePixel = 0
+
+		local DropdownCorner = Instance.new("UICorner")
+		DropdownCorner.CornerRadius = UDim.new(0, 6)
+		DropdownCorner.Parent = DropdownContainer
+
+		local TitleLabel = Instance.new("TextLabel")
+		TitleLabel.Parent = DropdownContainer
+		TitleLabel.BackgroundTransparency = 1
+		TitleLabel.TextColor3 = Colors.Text
+		TitleLabel.TextSize = 12
+		TitleLabel.Font = Enum.Font.Gotham
+		TitleLabel.Size = UDim2.new(0.5, 0, 1, 0)
+		TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+		TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+		TitleLabel.Text = Options.Title or "Dropdown"
+
+		local DropdownButton = Instance.new("TextButton")
+		DropdownButton.Parent = DropdownContainer
+		DropdownButton.BackgroundColor3 = Colors.Background
+		DropdownButton.BackgroundTransparency = 0
+		DropdownButton.TextColor3 = Colors.Accent
+		DropdownButton.TextSize = 11
+		DropdownButton.Font = Enum.Font.Gotham
+		DropdownButton.Size = UDim2.new(0, 100, 0, 30)
+		DropdownButton.Position = UDim2.new(1, -110, 0.5, -15)
+		DropdownButton.BorderSizePixel = 0
+		DropdownButton.Text = "Select"
+
+		local DropdownButtonCorner = Instance.new("UICorner")
+		DropdownButtonCorner.CornerRadius = UDim.new(0, 5)
+		DropdownButtonCorner.Parent = DropdownButton
+
+		local CurrentValue = nil
+		local Values = Options.Values or {}
+
+		DropdownButton.MouseButton1Click:Connect(function()
+			local Index = 1
+			for i, v in ipairs(Values) do
+				if v == CurrentValue then
+					Index = i
+					break
+				end
+			end
+			local NextIndex = (Index % #Values) + 1
+			CurrentValue = Values[NextIndex]
+			DropdownButton.Text = tostring(CurrentValue)
+			if Options.Callback then
+				Options.Callback(CurrentValue)
+			end
+		end)
+
+		return {
+			GetValue = function()
+				return CurrentValue
+			end,
+			SetValue = function(self, Value)
+				CurrentValue = Value
+				DropdownButton.Text = tostring(Value)
+			end
+		}
+	end
+
+	function Tab:AddInput(Options)
+		local InputContainer = Instance.new("Frame")
+		InputContainer.Name = Options.Title or "Input"
+		InputContainer.Parent = TabContent
+		InputContainer.BackgroundColor3 = Colors.Element
+		InputContainer.BackgroundTransparency = 0
+		InputContainer.Size = UDim2.new(1, 0, 0, 50)
+		InputContainer.BorderSizePixel = 0
+
+		local InputCorner = Instance.new("UICorner")
+		InputCorner.CornerRadius = UDim.new(0, 6)
+		InputCorner.Parent = InputContainer
+
+		local TitleLabel = Instance.new("TextLabel")
+		TitleLabel.Parent = InputContainer
+		TitleLabel.BackgroundTransparency = 1
+		TitleLabel.TextColor3 = Colors.Text
+		TitleLabel.TextSize = 12
+		TitleLabel.Font = Enum.Font.Gotham
+		TitleLabel.Size = UDim2.new(0.5, 0, 0, 20)
+		TitleLabel.Position = UDim2.new(0, 10, 0, 5)
+		TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+		TitleLabel.Text = Options.Title or "Input"
+
+		local InputBox = Instance.new("TextBox")
+		InputBox.Parent = InputContainer
+		InputBox.BackgroundColor3 = Colors.Background
+		InputBox.BackgroundTransparency = 0
+		InputBox.TextColor3 = Colors.Text
+		InputBox.TextSize = 11
+		InputBox.Font = Enum.Font.Gotham
+		InputBox.Size = UDim2.new(1, -20, 0, 25)
+		InputBox.Position = UDim2.new(0, 10, 0, 22)
+		InputBox.BorderSizePixel = 0
+		InputBox.PlaceholderText = Options.Placeholder or ""
+		InputBox.PlaceholderColor3 = Colors.TextSecondary
+		InputBox.ClearTextOnFocus = false
+
+		local InputBoxCorner = Instance.new("UICorner")
+		InputBoxCorner.CornerRadius = UDim.new(0, 4)
+		InputBoxCorner.Parent = InputBox
+
+		InputBox.FocusLost:Connect(function()
+			if Options.Callback then
+				Options.Callback(InputBox.Text)
+			end
+		end)
+
+		return {
+			GetValue = function()
+				return InputBox.Text
+			end,
+			SetValue = function(self, Value)
+				InputBox.Text = tostring(Value)
+			end
+		}
+	end
+
+	function Tab:AddSection(Options)
+		local SectionContainer = Instance.new("Frame")
+		SectionContainer.Name = Options.Title or "Section"
+		SectionContainer.Parent = TabContent
+		SectionContainer.BackgroundTransparency = 1
+		SectionContainer.Size = UDim2.new(1, 0, 0, 30)
+		SectionContainer.BorderSizePixel = 0
+
+		local SectionTitle = Instance.new("TextLabel")
+		SectionTitle.Parent = SectionContainer
+		SectionTitle.BackgroundTransparency = 1
+		SectionTitle.TextColor3 = Colors.Accent
+		SectionTitle.TextSize = 13
+		SectionTitle.Font = Enum.Font.GothamBold
+		SectionTitle.Size = UDim2.new(1, 0, 0, 20)
+		SectionTitle.Position = UDim2.new(0, 0, 0, 5)
+		SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
+		SectionTitle.Text = Options.Title or "Section"
+
+		local Divider = Instance.new("Frame")
+		Divider.Parent = SectionContainer
+		Divider.BackgroundColor3 = Colors.Accent
+		Divider.BackgroundTransparency = 0.5
+		Divider.BorderSizePixel = 0
+		Divider.Size = UDim2.new(1, 0, 0, 1)
+		Divider.Position = UDim2.new(0, 0, 0, 25)
+
+		return SectionContainer
+	end
+
+	function Tab:AddSearch(Options)
+		local SearchContainer = Instance.new("Frame")
+		SearchContainer.Name = Options.Title or "Search"
+		SearchContainer.Parent = TabContent
+		SearchContainer.BackgroundColor3 = Colors.Element
+		SearchContainer.BackgroundTransparency = 0
+		SearchContainer.Size = UDim2.new(1, 0, 0, 50)
+		SearchContainer.BorderSizePixel = 0
+
+		local SearchCorner = Instance.new("UICorner")
+		SearchCorner.CornerRadius = UDim.new(0, 6)
+		SearchCorner.Parent = SearchContainer
+
+		-- Icon Search
+		local SearchIcon = Instance.new("TextLabel")
+		SearchIcon.Parent = SearchContainer
+		SearchIcon.BackgroundTransparency = 1
+		SearchIcon.TextColor3 = Colors.Accent
+		SearchIcon.TextSize = 18
+		SearchIcon.Font = Enum.Font.GothamBold
+		SearchIcon.Size = UDim2.new(0, 40, 0, 40)
+		SearchIcon.Position = UDim2.new(0, 5, 0.5, -20)
+		SearchIcon.Text = "🔍"
+
+		-- Title
+		local TitleLabel = Instance.new("TextLabel")
+		TitleLabel.Parent = SearchContainer
+		TitleLabel.BackgroundTransparency = 1
+		TitleLabel.TextColor3 = Colors.Text
+		TitleLabel.TextSize = 12
+		TitleLabel.Font = Enum.Font.Gotham
+		TitleLabel.Size = UDim2.new(0, 100, 0, 20)
+		TitleLabel.Position = UDim2.new(0, 50, 0, 5)
+		TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+		TitleLabel.Text = Options.Title or "Tìm Kiếm"
+
+		-- Search Box
+		local SearchBox = Instance.new("TextBox")
+		SearchBox.Parent = SearchContainer
+		SearchBox.BackgroundColor3 = Colors.Background
+		SearchBox.BackgroundTransparency = 0
+		SearchBox.TextColor3 = Colors.Text
+		SearchBox.TextSize = 12
+		SearchBox.Font = Enum.Font.Gotham
+		SearchBox.Size = UDim2.new(1, -60, 0, 25)
+		SearchBox.Position = UDim2.new(0, 50, 0, 22)
+		SearchBox.BorderSizePixel = 0
+		SearchBox.PlaceholderText = Options.Placeholder or "Nhập từ khóa..."
+		SearchBox.PlaceholderColor3 = Colors.TextSecondary
+		SearchBox.ClearTextOnFocus = false
+
+		local SearchBoxCorner = Instance.new("UICorner")
+		SearchBoxCorner.CornerRadius = UDim.new(0, 4)
+		SearchBoxCorner.Parent = SearchBox
+
+		-- Clear Button
+		local ClearButton = Instance.new("TextButton")
+		ClearButton.Parent = SearchContainer
+		ClearButton.BackgroundColor3 = Colors.Background
+		ClearButton.BackgroundTransparency = 0
+		ClearButton.TextColor3 = Colors.TextSecondary
+		ClearButton.TextSize = 14
+		ClearButton.Font = Enum.Font.GothamBold
+		ClearButton.Size = UDim2.new(0, 25, 0, 25)
+		ClearButton.Position = UDim2.new(1, -35, 0, 22)
+		ClearButton.BorderSizePixel = 0
+		ClearButton.Text = "✕"
+
+		local ClearButtonCorner = Instance.new("UICorner")
+		ClearButtonCorner.CornerRadius = UDim.new(0, 4)
+		ClearButtonCorner.Parent = ClearButton
+
+		ClearButton.MouseButton1Click:Connect(function()
+			SearchBox.Text = ""
+			if Options.OnClear then
+				Options.OnClear()
+			end
+		end)
+
+		-- Search Event
+		SearchBox.Changed:Connect(function()
+			if Options.Callback then
+				Options.Callback(SearchBox.Text)
+			end
+		end)
+
+		return {
+			GetValue = function()
+				return SearchBox.Text
+			end,
+			SetValue = function(self, Value)
+				SearchBox.Text = tostring(Value)
+			end,
+			Clear = function(self)
+				SearchBox.Text = ""
+			end
+		}
+	end
+
+	VNDHubUI.Tabs[TabName] = Tab
+	
+	-- Auto-select first tab
+	if #VNDHubUI.Tabs == 1 then
+		TabButton:MouseButton1Click()
+	end
+
+	return Tab
+end
+
+-- ==========================================
+-- SEARCH FUNCTIONALITY
+-- ==========================================
+SearchInput.Changed:Connect(function()
+	local SearchText = SearchInput.Text:lower()
+	
+	for _, Tab in pairs(VNDHubUI.Tabs) do
+		if Tab.Button then
+			local TabName = Tab.Button.Text:lower()
+			if SearchText == "" or TabName:find(SearchText, 1, true) then
+				Tab.Button.Visible = true
+			else
+				Tab.Button.Visible = false
+			end
+		end
+	end
+end)
+
+-- ==========================================
+-- PUBLIC API
+-- ==========================================
+function VNDHubUI:CreateTab(TabName)
+	return CreateTab(TabName)
+end
+
+function VNDHubUI:SetTitle(Title)
+	TitleLabel.Text = Title
+end
+
+function VNDHubUI:SetDesc(Desc)
+	DescLabel.Text = Desc
+end
+
+function VNDHubUI:Toggle()
+	MainWindow.Visible = not MainWindow.Visible
+end
+
+function VNDHubUI:Notify(Options)
+	local NotifyGui = Instance.new("ScreenGui")
+	NotifyGui.Name = "Notify"
+	NotifyGui.ResetOnSpawn = false
+	NotifyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	NotifyGui.Parent = CoreGui
+
+	local NotifyFrame = Instance.new("Frame")
+	NotifyFrame.Parent = NotifyGui
+	NotifyFrame.BackgroundColor3 = Colors.Element
+	NotifyFrame.BackgroundTransparency = 0
+	NotifyFrame.Size = UDim2.new(0, 350, 0, 100)
+	NotifyFrame.Position = UDim2.new(1, -360, 1, -110)
+	NotifyFrame.BorderSizePixel = 0
+
+	local NotifyCorner = Instance.new("UICorner")
+	NotifyCorner.CornerRadius = UDim.new(0, 8)
+	NotifyCorner.Parent = NotifyFrame
+
+	local Border = Instance.new("Frame")
+	Border.Parent = NotifyFrame
+	Border.BackgroundColor3 = Colors.Accent
+	Border.BackgroundTransparency = 0
+	Border.Size = UDim2.new(0, 3, 1, 0)
+	Border.BorderSizePixel = 0
+
+	local TitleNotify = Instance.new("TextLabel")
+	TitleNotify.Parent = NotifyFrame
+	TitleNotify.BackgroundTransparency = 1
+	TitleNotify.TextColor3 = Colors.Text
+	TitleNotify.TextSize = 12
+	TitleNotify.Font = Enum.Font.GothamBold
+	TitleNotify.Size = UDim2.new(1, -10, 0, 25)
+	TitleNotify.Position = UDim2.new(0, 10, 0, 5)
+	TitleNotify.TextXAlignment = Enum.TextXAlignment.Left
+	TitleNotify.Text = Options.Title or "Notification"
+
+	local DescNotify = Instance.new("TextLabel")
+	DescNotify.Parent = NotifyFrame
+	DescNotify.BackgroundTransparency = 1
+	DescNotify.TextColor3 = Colors.TextSecondary
+	DescNotify.TextSize = 11
+	DescNotify.Font = Enum.Font.Gotham
+	DescNotify.Size = UDim2.new(1, -15, 0, 60)
+	DescNotify.Position = UDim2.new(0, 10, 0, 30)
+	DescNotify.TextWrapped = true
+	DescNotify.TextXAlignment = Enum.TextXAlignment.Left
+	DescNotify.Text = Options.Description or ""
+
+	local Duration = Options.Duration or 3
+	game:GetService("Debris"):AddItem(NotifyGui, Duration)
+end
+
+-- ==========================================
+-- CLOSE & TOGGLE BUTTONS
+-- ==========================================
+CloseButton.MouseButton1Click:Connect(function()
+	MainWindow.Visible = not MainWindow.Visible
+end)
+
+ToggleButton.MouseButton1Click:Connect(function()
+	VNDHubUI:Toggle()
+end)
+
+-- Keyboard shortcut
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.KeyCode == Enum.KeyCode.Insert then
+		VNDHubUI:Toggle()
+	end
+end)
+
+-- ==========================================
+-- RETURN & SETUP GLOBAL
+-- ==========================================
+getgenv().VNDHubUI = VNDHubUI
+
+return VNDHubUI
