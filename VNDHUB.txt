@@ -1,0 +1,5634 @@
+repeat task.wait() until game:IsLoaded()
+
+-- 🟣 Tải giao diện Fluent-Modded (Bản Pro)
+local Fluent = loadstring(game:HttpGet(
+    "https://github.com/StyearX/Fluent-Modded/releases/download/Fluent/FluentPro"
+))()
+
+-- 🟣 Đăng ký Theme Tím (RoyalPurple) cực đẹp
+Fluent:RegisterCustomTheme("RoyalPurple", {
+    Accent = Color3.fromRGB(170, 70, 250),      -- Tím neon sáng rực rỡ
+    AcrylicMain = Color3.fromRGB(16, 14, 22),   -- Nền tối pha tím huyền ảo
+    Text = Color3.fromRGB(240, 235, 255),       -- Chữ trắng ánh tím
+    IconColor = Color3.fromRGB(170, 70, 250),
+    IconSize = 18,
+    ShineEnabled = true,
+    Shine = {
+        Speed = 0.5,
+        RotationSpeed = 25,
+        ColorSequence = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 20, 100)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(170, 70, 250)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 20, 100)),
+        }),
+    },
+})
+
+-- 🪟 Cửa sổ chính phiên bản Pro (Đã sửa lỗi trùng lặp Info và vừa vặn màn hình điện thoại)
+local Window = Fluent:CreateWindow({
+    Title            = "VND hub",
+    SubTitle         = "bá sàn",
+    TabWidth         = 160,
+    Size             = UDim2.fromOffset(470, 370),
+    Acrylic          = true,
+    Theme            = "RoyalPurple",
+    MinimizeKey      = Enum.KeyCode.LeftControl,
+    Search           = true,
+    UserInfoTop      = true,
+    UserInfo         = false,
+    UserInfoTitle    = "VND HUB",
+    UserInfoSubtitle = game.Players.LocalPlayer.Name,
+    UserInfoColor    = Color3.fromRGB(170, 70, 250),
+    TitleIcon        = "solar/shield-check-bold",
+    Icons            = "solar/code-bold",
+    Font             = "GothamSSm",
+})
+
+-- 🟢 Nút mở/tắt menu chính nổi trên màn hình
+local ScreenGui = Instance.new("ScreenGui")
+local ImageButton = Instance.new("ImageButton")
+local UICorner = Instance.new("UICorner")
+
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+ImageButton.Parent = ScreenGui
+ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ImageButton.BorderSizePixel = 0
+ImageButton.Position = UDim2.new(0.10615778, 0, 0.16217947, 0)
+ImageButton.Size = UDim2.new(0, 45, 0, 45)
+ImageButton.Draggable = true
+ImageButton.Image = "http://www.roblox.com/asset/?id=136212761828655"
+
+UICorner.CornerRadius = UDim.new(0, 4) 
+UICorner.Parent = ImageButton
+
+ImageButton.MouseButton1Down:Connect(function()
+    Window:Minimize()
+end)
+
+
+
+-- 📑 Các tab chức năng chính
+local Tabs = {
+	Main1 = Window:AddTab({ Title = "Main", Icon = "solar/home-bold" }),
+	Main2 = Window:AddTab({ Title = "Farm Level", Icon = "solar/bolt-bold" }),
+	Main3 = Window:AddTab({ Title = "Farm Tiền", Icon = "solar/wallet-bold" }),
+	Main4 = Window:AddTab({ Title = "Mua đồ", Icon = "solar/cart-bold" }),
+	Main5 = Window:AddTab({ Title = "Farm Sự Kiện", Icon = "solar/star-bold" }),
+	Main6 = Window:AddTab({ Title = "Farm Boss", Icon = "solar/shield-user-bold" }),
+	Main7 = Window:AddTab({ Title = "PVP Combat", Icon = "solar/gamepad-bold" }),
+	Main8 = Window:AddTab({ Title = "Fix Lag", Icon = "solar/refresh-bold" }),
+	Main9 = Window:AddTab({ Title = "Settings", Icon = "solar/settings-bold" })
+}
+
+------------------------------------------------
+-- KHỞI TẠO BIẾN TOÀN CỤC (_G)
+------------------------------------------------
+-- Farm Level
+_G.AutoFarmLevel = false
+_G.NpcDistance=18.2
+_G.NpcSpeed=0.05
+_G.AutoLootEnabled = false
+_G.AutoFarmChua = false
+_G.AntiAFKEnabled = false 
+
+-- Farm Tiền & Sự Kiện & Mật Ong
+_G.AutoFarmBanhMi = false 
+_G.AutoFarmBenhVien = false 
+_G.AutoFarmCaoSu = false 
+_G.AutoFarmChotCongAn = false 
+_G.AutoFarmSuKien = false 
+_G.AutoFarmMatOng = false 
+_G.SelectedVehicle = nil
+_G.SelectedItem = nil
+_G.SelectedFood = nil
+
+-- Farm Boss
+_G.BossSettings = _G.BossSettings or {}
+_G.BossSettings.Mode1 = _G.BossSettings.Mode1 or {Dist = 20, Speed = 0.0005}
+_G.BossSettings.Mode2 = _G.BossSettings.Mode2 or {Radius = 20, Speed = 1000}
+_G.BossSettings.Mode3 = _G.BossSettings.Mode3 or {Dist = 17, Speed = 0.08}
+_G.AutoLootBossEnabled= false   
+_G.AutoAimBossNoCam = false     
+_G.ShowBossTracker = false
+_G.ArenaCameraEnabled = false
+
+-- PVP Combat
+_G.PvpAutoAttack = false
+_G.AutoBandageEnabled = false
+_G.AutoBuyBandage = false
+_G.AutoBuyBandageAmount = 1
+local lastBuy = 0
+_G.PvpAimNoCamActive = false    
+_G.PvpHitboxActive = false
+_G.PvpSpinActive = false
+_G.PvpSpeedActive = false
+_G.PvpJumpActive = false
+
+-- Hệ thống Quản lý Config
+_G.InfoUIState = false
+local ConfigFolderName = "VND_MultiConfigs"
+local GlobalSettingsFile = "VND_System_Global.json"
+_G.SelectedConfigName = ""
+_G.UseConfigSystem = false
+
+------------------------------------------------
+-- CẤU HÌNH LOGIC CHUNG & CÀY CẤP QUÁI THƯỜNG
+------------------------------------------------
+local Players = game:GetService("Players")
+local VirtualUser = game:GetService("VirtualUser")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+local Lighting = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+local freecamPosition = Vector3.new(0,0,0)
+local flySpeed = 2
+
+local function isAliveModel(model)
+    if model and model:FindFirstChild("Humanoid") and model.Humanoid.Health > 0 then
+        return true
+    end
+    return false
+end
+
+local function getNearestMonster()
+    local char = player.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+    local hrpPos = char.HumanoidRootPart.Position
+    local closestMonster = nil
+    local maxDistance = math.huge
+    local targetFolder = workspace:FindFirstChild("Bosses") or workspace:FindFirstChild("Monsters") or workspace
+    
+    for _, obj in ipairs(targetFolder:GetChildren()) do
+        if obj:IsA("Model") and isAliveModel(obj) and obj ~= char then
+            if not Players:GetPlayerFromCharacter(obj) then 
+                local mHrp = obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChild("Torso")
+                if mHrp then
+                    local distance = (hrpPos - mHrp.Position).Magnitude
+                    if distance < maxDistance then
+                        maxDistance = distance
+                        closestMonster = obj
+                    end
+                end
+            end
+        end
+    end
+    return closestMonster
+end
+
+-- [ LOGIC SNAP-DASH SIÊU TỐC - TỰ ĐỘNG CÀY CẤP ]
+local Players=game:GetService("Players")
+local VirtualUser=game:GetService("VirtualUser")
+local Workspace=game:GetService("Workspace")
+
+local player=Players.LocalPlayer
+
+_G.Settings={TargetName="CityNPC",DashDist=18.2,Speed=0.05}
+_G.AutoFarmLevel=false
+
+local lastDash=0
+local lockedTarget=nil
+local lockedPosition=nil
+
+task.spawn(function()
+while task.wait() do
+if _G.AutoFarmLevel then
+pcall(function()
+
+local character=player.Character
+if not character then return end
+
+local hrp=character:FindFirstChild("HumanoidRootPart")
+local humanoid=character:FindFirstChild("Humanoid")
+
+if not hrp or not humanoid then return end
+
+if not lockedTarget or not lockedTarget.Parent or not lockedTarget:FindFirstChild("Humanoid") or lockedTarget.Humanoid.Health<=0 then
+
+lockedTarget=nil
+lockedPosition=nil
+
+for _,obj in pairs(Workspace:GetDescendants()) do
+if obj.Name==_G.Settings.TargetName and obj:FindFirstChild("HumanoidRootPart") and obj:FindFirstChild("Humanoid") and obj.Humanoid.Health>0 then
+
+lockedTarget=obj
+lockedPosition=obj.HumanoidRootPart.Position
+break
+end
+end
+end
+
+if not lockedTarget then
+return
+end
+
+local targetHrp=lockedTarget:FindFirstChild("HumanoidRootPart")
+local targetHum=lockedTarget:FindFirstChild("Humanoid")
+
+if not targetHrp or not targetHum then
+lockedTarget=nil
+lockedPosition=nil
+return
+end
+
+targetHrp.CFrame=CFrame.new(lockedPosition)
+targetHum.WalkSpeed=0
+targetHum.JumpPower=0
+targetHum.PlatformStand=true
+
+if tick()-lastDash>=_G.Settings.Speed then
+lastDash=tick()
+
+local offsets={
+Vector3.new(_G.Settings.DashDist,0,0),
+Vector3.new(-_G.Settings.DashDist,0,0),
+Vector3.new(0,0,_G.Settings.DashDist),
+Vector3.new(0,0,-_G.Settings.DashDist)
+}
+
+local randomOffset=offsets[math.random(1,#offsets)]
+
+hrp.CFrame=CFrame.lookAt(
+lockedPosition+randomOffset,
+lockedPosition
+)
+
+hrp.AssemblyLinearVelocity=Vector3.zero
+
+local tool=character:FindFirstChildOfClass("Tool")
+
+if tool then
+tool:Activate()
+
+pcall(function()
+tool:Activate()
+end)
+
+else
+VirtualUser:CaptureController()
+
+VirtualUser:Button1Down(Vector2.new(500,500))
+task.wait(0.03)
+VirtualUser:Button1Up(Vector2.new(500,500))
+end
+end
+end)
+
+else
+lockedTarget=nil
+lockedPosition=nil
+end
+end
+end)
+
+
+------------------------------------------------
+-- LOGIC TỰ ĐỘNG NHẶT ĐỒ (AUTO LOOT)
+------------------------------------------------
+task.spawn(function()
+while true do
+task.wait(0.5)
+
+if _G.AutoLootEnabled or _G.AutoLootBossEnabled then
+pcall(function()
+
+local char=game:GetService("Players").LocalPlayer.Character
+local hrp=char and char:FindFirstChild("HumanoidRootPart")
+
+if hrp then
+for _,v in ipairs(workspace:GetDescendants()) do
+
+if v:IsA("ProximityPrompt") then
+local pos=v.Parent:IsA("BasePart") and v.Parent.Position or (v.Parent:IsA("Model") and v.Parent:GetPivot().Position)
+
+if pos and (hrp.Position-pos).Magnitude<=20 then
+fireproximityprompt(v)
+end
+end
+
+if v:IsA("TouchInterest") and v.Parent:IsA("BasePart") then
+if (hrp.Position-v.Parent.Position).Magnitude<=20 then
+firetouchinterest(hrp,v.Parent,0)
+firetouchinterest(hrp,v.Parent,1)
+end
+end
+
+end
+end
+
+end)
+end
+
+end
+end)
+
+
+------------------------------------------------
+-- LOGIC TREO MÁY & ANTI-AFK TOÀN DIỆN
+------------------------------------------------
+local ToaDoChua1 = Vector3.new(1561, 133, -244)
+local ToaDoChua2 = Vector3.new(1547, 133, -245)
+
+local TDBanhMi = {
+    Vector3.new(573, 21, -357),
+    Vector3.new(563, 20, -386),
+    Vector3.new(553, 20, -413),
+    Vector3.new(531, 21, -449)
+}
+
+local TDBenhVien = {
+    Vector3.new(790, 22, -403),
+    Vector3.new(790, 22, -413)
+}
+
+local TDCaoSu = {
+    Vector3.new(1681, 19, -456),
+    Vector3.new(1723, 19, -388)
+}
+
+local TDChotCongAn = Vector3.new(734, 20, -812)
+local TDSuKien = Vector3.new(0, 0, 0) 
+
+local TDMatOng = {
+    Vector3.new(567, 19, -533),
+    Vector3.new(626, 19, -511),
+    Vector3.new(629, 19, -419)
+}
+
+local TDBoss = Vector3.new(-2823, 274, -1896)
+local TDBossTam = Vector3.new(-2790, 240, -1761) 
+
+local function isAreaOccupied(targetPos)
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            if (p.Character.HumanoidRootPart.Position - targetPos).Magnitude <= 7 then
+                return true
+            end
+        end
+    end
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("Seat") or v:IsA("VehicleSeat") then
+            if (v.Position - targetPos).Magnitude <= 7 and v.Occupant and v.Occupant.Parent ~= player.Character then 
+                return true 
+            end
+        end
+    end
+    return false
+end
+
+local function interactWithSeatPrompt(targetPos)
+    for _, prompt in ipairs(workspace:GetDescendants()) do
+        if prompt:IsA("ProximityPrompt") and (prompt.Parent:IsA("BasePart") or prompt.Parent:IsA("Model")) then
+            if (prompt.Parent.Position - targetPos).Magnitude <= 6 then
+                 fireproximityprompt(prompt)
+                break
+            end
+        end
+    end
+end
+
+------------------------------------------------
+-- MUA Đồ no chatgpt,gemini
+------------------------------------------------
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local remoteEvent = ReplicatedStorage:WaitForChild("KnitPackages"):WaitForChild("_Index"):WaitForChild("sleitnick_knit@1.7.0"):WaitForChild("knit"):WaitForChild("Services"):WaitForChild("VehicleShopService"):WaitForChild("RE"):WaitForChild("buyVehicle")
+
+-- Danh sách xe
+local vehicleList = {
+    "Xe cấp cứu", "Yaz 125", "Wave độ", "Sirius", "Xe điện Xmen Neo", "Sonic 150", 
+    "Winner X 150", "Dream 110", "Ducati 1299", "Duke 390", "Exciter 135", 
+    "Exciter Decal 2023", "Exciter movistar", "Exciter Độ 2021", "HONDA X-ADV 150", 
+    "PCX 2025 White", "R1 Black", "Click 150 Độ", "S1000RR", "Satria 150", 
+    "Z1000 (2013)", "Yamaha aerox 155", "Liberty S", "KTM 390 RC", "Hornet 600", 
+    "Vision 150", "Vespa độ (White)", "Xe điện Jodonin", "Wave 110", 
+    "ZX-6R Xanh", "GSXR 650", "SH 350i", "AB 150", "Cub 50", "Xe đạp",
+    "Merc SL63", "Lamborghini SC20", "Z1000 Đen", "CBR1000R", "R6", 
+    "2017 Kia Morning", "Vinfast Lux A2.0 (Đen)", "Ford (Cam)", "Lamborghini (Hồng)", 
+    "Lamborghini (Trắng)", "Lamborghini (Xanh)", "Ducati Monter 1100", 
+    "Mclaren Orange", "Mclaren Blue", "Mclaren Red", "Mercedes s450", 
+    "Suzuki Jimny", "Toyota Camry (Trắng)", "BMW M5 cs", "Potcher 911"
+}
+
+-------
+--mua Vũ khí 
+-------
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local buyItemEvent = ReplicatedStorage:WaitForChild("KnitPackages"):WaitForChild("_Index"):WaitForChild("sleitnick_knit@1.7.0"):WaitForChild("knit"):WaitForChild("Services"):WaitForChild("ShopService"):WaitForChild("RE"):WaitForChild("buyItem")
+
+-- Danh sách vật phẩm
+local itemList = {
+    "PhongLon", "MaTau", "Mưa thủy tinh", "BoomBox", "Sign", 
+    "lòng đèn", "Bát Xà Mâu", "Đại đao", "Vợt muỗi", 
+    "Sign(mùa hè)", "Guitar(mùa hè)", "Cặp táp học sinh"
+}
+
+--------------
+--mua đồ ăn 
+--------------
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local buyItemEvent = ReplicatedStorage:WaitForChild("KnitPackages"):WaitForChild("_Index"):WaitForChild("sleitnick_knit@1.7.0"):WaitForChild("knit"):WaitForChild("Services"):WaitForChild("ShopService"):WaitForChild("RE"):WaitForChild("buyItem")
+
+-- Danh sách 20 món ăn
+local foodList = {
+    "Bún bò", "Phở", "Bún cá", "Bún Riêu", "7 Down", 
+    "Cam ép", "Coca", "Coffee", "Fanta", "Kem que", 
+    "Kem óc quế", "Pepi", "Trà sữa", "Trà sữa bạc hà", 
+    "Trà sữa dâu", "Trà sữa khoai môn", "Bánh mì", 
+    "Sting red", "Sting Blue", "Nước suối"
+}
+
+
+------------------------------------------------
+-- HỆ THỐNG GIẢM TẢI ĐỒ HỌA CHUYÊN SÂU THEO %
+------------------------------------------------
+local originalMaterials = {}
+
+local function saveOriginalMaterials()
+    if next(originalMaterials) == nil then
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") then
+                originalMaterials[v] = {
+                    Material = v.Material,
+                    Reflectance = v.Reflectance,
+                    CastShadow = v.CastShadow
+                }
+            end
+        end
+    end
+end
+
+local function toggleGraphicReduction(percent, enable)
+    saveOriginalMaterials()
+    local totalParts = 0
+    for _ in pairs(originalMaterials) do totalParts = totalParts + 1 end
+    if totalParts == 0 then return end
+
+    local targetCount = math.floor(totalParts * (percent / 100))
+    local currentCount = 0
+
+    for part, data in pairs(originalMaterials) do
+        if part and part.Parent then
+            currentCount = currentCount + 1
+            if currentCount <= targetCount then
+                if enable then
+                    part.Material = Enum.Material.SmoothPlastic
+                    part.Reflectance = 0
+                    part.CastShadow = false
+                else
+                    part.Material = data.Material
+                    part.Reflectance = data.Reflectance
+                    part.CastShadow = data.CastShadow
+                end
+            end
+        end
+    end
+end
+
+local function activateFPSBoost()
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+    Lighting.GlobalShadows = false
+    Lighting.Brightness = 0
+    Lighting.FogEnd = 1e9
+end
+
+local function deactivateFPSBoost()
+    Lighting.GlobalShadows = true
+    Lighting.Brightness = 2
+    Lighting.FogEnd = 1000
+end
+
+local function isAnyFarmActive()
+    return _G.AntiAFKEnabled or _G.AutoFarmChua or _G.AutoFarmBanhMi or _G.AutoFarmBenhVien or _G.AutoFarmCaoSu or _G.AutoFarmChotCongAn or _G.AutoFarmSuKien or _G.AutoFarmMatOng or _G.TeleportToBoss or _G.AutoFarmBossCircle
+end
+
+player.Idled:Connect(function()
+    if isAnyFarmActive() then
+        VirtualUser:Button2Down(Vector2.new(), camera.CFrame)
+        task.wait(0.5)
+        VirtualUser:Button2Up(Vector2.new(), camera.CFrame)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(250)
+        if isAnyFarmActive() then
+            pcall(function()
+                if not _G.FreecamEnabled and not _G.LockCameraEnabled and not _G.AutoAimBossNoCam then
+                    camera.CFrame *= CFrame.Angles(0, math.rad(5), 0)
+                end
+                VirtualUser:Button2Down(Vector2.new(), camera.CFrame)
+                task.wait(0.5)
+                VirtualUser:Button2Up(Vector2.new(), camera.CFrame)
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.AutoFarmChua then
+            pcall(function()
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if hrp and humanoid and not humanoid.SeatPart then
+                    local finalTarget = ToaDoChua1
+                    if isAreaOccupied(ToaDoChua1) then finalTarget = ToaDoChua2 end
+                    hrp.CFrame = CFrame.new(finalTarget + Vector3.new(0, 2, 0))
+                    task.wait(0.1)
+                    interactWithSeatPrompt(finalTarget)
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.AutoFarmBanhMi then
+            pcall(function()
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if hrp and humanoid and not humanoid.SeatPart then
+                    local finalTarget = nil
+                    for i = 1, #TDBanhMi do
+                        if not isAreaOccupied(TDBanhMi[i]) then finalTarget = TDBanhMi[i] break end
+                    end
+                    if not finalTarget then finalTarget = TDBanhMi[1] end
+                    hrp.CFrame = CFrame.new(finalTarget + Vector3.new(0, 2, 0))
+                    task.wait(0.1)
+                    interactWithSeatPrompt(finalTarget)
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.AutoFarmBenhVien then
+             pcall(function()
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if hrp and humanoid and not humanoid.SeatPart then
+                    local finalTarget = nil
+                    for i = 1, #TDBenhVien do
+                        if not isAreaOccupied(TDBenhVien[i]) then finalTarget = TDBenhVien[i] break end
+                    end
+                    if not finalTarget then finalTarget = TDBenhVien[1] end
+                    hrp.CFrame = CFrame.new(finalTarget + Vector3.new(0, 2, 0))
+                    task.wait(0.1)
+                    interactWithSeatPrompt(finalTarget)
+                end
+            end)
+        end
+   end
+end)
+
+local currentCaoSuTarget = nil
+task.spawn(function()
+    while true do
+         task.wait(0.8)
+        if _G.AutoFarmCaoSu then
+            pcall(function()
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                     if not currentCaoSuTarget or (isAreaOccupied(currentCaoSuTarget)) then
+                        local chosen = nil
+                        for i = 1, #TDCaoSu do
+                            if not isAreaOccupied(TDCaoSu[i]) then chosen = TDCaoSu[i] break end
+                        end
+                        currentCaoSuTarget = chosen or TDCaoSu[1]
+                    end
+                    hrp.CFrame = CFrame.new(currentCaoSuTarget + Vector3.new(0, 2, 0))
+                end
+            end)
+        else
+            currentCaoSuTarget = nil
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+         task.wait(0.8)
+        if _G.AutoFarmChotCongAn then
+             pcall(function()
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    if not isAreaOccupied(TDChotCongAn) then
+                        hrp.CFrame = CFrame.new(TDChotCongAn + Vector3.new(0, 2, 0))
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.AutoFarmSuKien then
+            pcall(function()
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if hrp and humanoid then
+                    if (hrp.Position - TDSuKien).Magnitude > 5 then
+                        hrp.CFrame = CFrame.new(TDSuKien + Vector3.new(0, 2, 0))
+                    end
+                    task.wait(0.1)
+                    interactWithSeatPrompt(TDSuKien)
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.AutoFarmMatOng then
+            pcall(function()
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if hrp and humanoid and not humanoid.SeatPart then
+                    local finalTarget = nil
+                    for i = 1, #TDMatOng do
+                        if not isAreaOccupied(TDMatOng[i]) then 
+                            finalTarget = TDMatOng[i] 
+                            break 
+                        end
+                    end
+                    if not finalTarget then finalTarget = TDMatOng[1] end
+                    hrp.CFrame = CFrame.new(finalTarget + Vector3.new(0, 2, 0))
+                    task.wait(0.1)
+                    interactWithSeatPrompt(finalTarget)
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.TeleportToBoss then
+            pcall(function()
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp and (hrp.Position - TDBoss).Magnitude > 3 then
+                    hrp.CFrame = CFrame.new(TDBoss)
+                end
+            end)
+        end
+    end
+end)
+
+--------------------------------------------------------------------
+-- CHẾ ĐỘ 1: FARM BOSS (ĐÃ SỬA LỖI ĐIỀU KIỆN)
+--------------------------------------------------------------------
+local FIXED_BOSS_POS = Vector3.new(-2790, 239, -1762)
+local lastDash = 0
+
+-- Chạy vòng lặp kiểm tra liên tục, không bao bọc bằng if ở ngoài
+task.spawn(function()
+    while true do
+        task.wait() -- Luôn chờ để tránh crash game
+
+        -- Kiểm tra điều kiện: Phải bật Auto Farm VÀ chọn đúng Chế độ 1
+        if _G.SelectedBossMode == "Chế Độ 1" and _G.AutoFarmBossCircle and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            pcall(function()
+                local hrp = player.Character.HumanoidRootPart    
+                local target = nil    
+
+                -- 🔍 TÌM BOSS
+                for _, obj in pairs(workspace:GetDescendants()) do    
+                    if obj.Name == "NPC2" and obj:FindFirstChild("HumanoidRootPart") and obj:FindFirstChild("Humanoid") then    
+                        if obj.Humanoid.Health > 0 then    
+                            target = obj.HumanoidRootPart    
+                            target.CFrame = CFrame.new(FIXED_BOSS_POS)    
+                            obj.Humanoid.WalkSpeed = 0    
+                            obj.Humanoid.JumpPower = 0    
+                            break    
+                        end    
+                    end    
+                end    
+
+                -- ⚡ TELE DASH + AIM
+                -- Sử dụng tham số từ _G.BossSettings.Mode1
+                local dashSettings = _G.BossSettings.Mode1 or {Dist = 18.2, Speed = 0.05}
+                
+                if target and (tick() - lastDash > dashSettings.Speed) then    
+                    lastDash = tick()    
+                    local dist = dashSettings.Dist
+                    local offsets = {Vector3.new(dist, 0, 0), Vector3.new(-dist, 0, 0), Vector3.new(0, 0, dist), Vector3.new(0, 0, -dist)}
+                    local targetPos = FIXED_BOSS_POS + offsets[math.random(1, #offsets)]    
+
+                    if _G.AutoAimBossNoCam then    
+                        hrp.CFrame = CFrame.new(targetPos, Vector3.new(FIXED_BOSS_POS.X, hrp.Position.Y, FIXED_BOSS_POS.Z))    
+                    else    
+                        hrp.CFrame = CFrame.new(targetPos)    
+                    end    
+
+                    hrp.AssemblyLinearVelocity = Vector3.zero 
+
+                    -- 🥊 AUTO ĐÁNH
+                    local tool = player.Character:FindFirstChildOfClass("Tool")    
+                    if tool then    
+                        tool:Activate()    
+                    else    
+                        VirtualUser:CaptureController()    
+                        VirtualUser:Button1Down(Vector2.new(0,0))    
+                        task.delay(0.02, function() VirtualUser:Button1Up(Vector2.new(0,0)) end)    
+                    end    
+                end    
+            end)    
+        end
+    end
+end)
+
+--------------------------------------------------------------------
+-- CHế ĐỘ 2 FARM BOSS
+--------------------------------------------------------------------
+local RunService = game:GetService("RunService")
+
+local angle = 0
+local FIXED_BOSS_POS = Vector3.new(-2790, 239, -1762)
+
+task.spawn(function()
+    while true do
+        RunService.Heartbeat:Wait()
+
+        if _G.SelectedBossMode == "Chế Độ 2"
+            and _G.AutoFarmBossCircle
+            and player.Character
+            and player.Character:FindFirstChild("HumanoidRootPart") then
+
+            pcall(function()
+
+                local hrp = player.Character.HumanoidRootPart
+                local target = nil
+
+                -- ==========================================
+                -- TÌM BOSS
+                -- ==========================================
+
+                for _, obj in pairs(workspace:GetDescendants()) do
+                    if obj.Name == "NPC2"
+                        and obj:FindFirstChild("HumanoidRootPart")
+                        and obj:FindFirstChild("Humanoid") then
+
+                        if obj.Humanoid.Health > 0 then
+                            target = obj.HumanoidRootPart
+
+                            obj.Humanoid.WalkSpeed = 0
+                            target.CFrame = CFrame.new(FIXED_BOSS_POS)
+
+                            break
+                        end
+                    end
+                end
+
+                -- ==========================================
+                -- NẾU TÌM THẤY BOSS
+                -- ==========================================
+
+                if target then
+
+                    local radius =
+                        (_G.BossSettings
+                        and _G.BossSettings.Mode2
+                        and _G.BossSettings.Mode2.Radius)
+                        or 19
+
+                    local rotSpeed =
+                        (_G.BossSettings
+                        and _G.BossSettings.Mode2
+                        and _G.BossSettings.Mode2.Speed)
+                        or 0.001
+
+                    -- ==========================================
+                    -- VÒNG TRÒN
+                    -- ==========================================
+
+                    angle = angle + rotSpeed
+
+                    if angle >= math.pi * 2 then
+                        angle = angle - math.pi * 2
+                    end
+
+                    local x = math.cos(angle) * radius
+                    local z = math.sin(angle) * radius
+
+                    local targetPos =
+                        FIXED_BOSS_POS
+                        + Vector3.new(x, 0, z)
+
+                    -- Di chuyển + nhìn vào tâm
+                    hrp.CFrame = CFrame.lookAt(
+                        targetPos,
+                        FIXED_BOSS_POS
+                    )
+
+                    -- ==========================================
+                    -- AUTO ĐÁNH
+                    -- ==========================================
+
+                    local tool =
+                        player.Character:FindFirstChildOfClass("Tool")
+
+                    if tool then
+                        tool:Activate()
+                    else
+                        VirtualUser:CaptureController()
+                        VirtualUser:Button1Down(Vector2.new(0, 0))
+                        task.wait(0.05)
+                        VirtualUser:Button1Up(Vector2.new(0, 0))
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+--------------------------------------------------------------------
+-- CHế ĐỘ 3 FARM BOSS
+--------------------------------------------------------------------
+local NPC2_CENTER = Vector3.new(-2790,239,-1762)
+local CurrentPoint = 1
+local LastTeleport = 0
+local LastClick = 0
+
+local POINT_ANGLES = {
+    math.rad(-90),
+    math.rad(30),
+    math.rad(150)
+}
+
+local function FindNPC2()
+    local npc2 = workspace:FindFirstChild("NPC2",true)
+    if not npc2 then return nil,nil end
+    if npc2:IsA("Model") then
+        local root = npc2:FindFirstChild("HumanoidRootPart") or npc2.PrimaryPart or npc2:FindFirstChildWhichIsA("BasePart")
+        if root then return npc2,root end
+    elseif npc2:IsA("BasePart") then
+        return npc2,npc2
+    end
+    return nil,nil
+end
+
+local function GetCenterPoint(index)
+    local distance = tonumber(_G.BossSettings.Mode3.Dist) or 17
+    if distance < 0 then distance = 0 end
+    local angle = POINT_ANGLES[index] or POINT_ANGLES[1]
+    local offset = Vector3.new(math.cos(angle)*distance,0,math.sin(angle)*distance)
+    return Vector3.new(NPC2_CENTER.X+offset.X,NPC2_CENTER.Y,NPC2_CENTER.Z+offset.Z)
+end
+
+local function TeleportToPoint(index)
+    local Character = player.Character
+    if not Character then return end
+    local HRP = Character:FindFirstChild("HumanoidRootPart")
+    if not HRP then return end
+
+    local Boss,BossRoot = FindNPC2()
+    if not BossRoot then return end
+
+    local Target = GetCenterPoint(index)
+    local LookAt = Vector3.new(BossRoot.Position.X,Target.Y,BossRoot.Position.Z)
+
+    HRP.CFrame = CFrame.lookAt(Target,LookAt)
+    HRP.AssemblyLinearVelocity = Vector3.zero
+end
+
+RunService.Heartbeat:Connect(function()
+    if _G.SelectedBossMode ~= "Chế Độ 3" or not _G.AutoFarmBossCircle then return end
+
+    local now = os.clock()
+    local speed = tonumber(_G.BossSettings.Mode3.Speed) or 0.08
+    if speed <= 0 then speed = 0.01 end
+    if now - LastTeleport < speed then return end
+    LastTeleport = now
+
+    local Character = player.Character
+    local HRP = Character and Character:FindFirstChild("HumanoidRootPart")
+    if not HRP then return end
+
+    local Boss,BossRoot = FindNPC2()
+    if not BossRoot then return end
+
+    TeleportToPoint(CurrentPoint)
+
+    CurrentPoint += 1
+    if CurrentPoint > 3 then
+        CurrentPoint = 1
+    end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if _G.SelectedBossMode ~= "Chế Độ 3" or not _G.AutoFarmBossCircle then return end
+
+    local now = os.clock()
+    if now - LastClick < 0.05 then return end
+    LastClick = now
+
+    pcall(function()
+        local Tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+        if Tool then
+            Tool:Activate()
+        else
+            VirtualUser:CaptureController()
+            local Camera = workspace.CurrentCamera
+            if Camera then
+                VirtualUser:ClickButton1(Vector2.new(Camera.ViewportSize.X/2,Camera.ViewportSize.Y/2))
+            end
+        end
+    end)
+end)
+
+--------------------------------------------------------------------
+-- auto nhìn máu boss
+--------------------------------------------------------------------
+local RunService = game:GetService("RunService")
+
+local guiName = "VND_NPC_Tracker"
+_G.ShowBossTracker = false
+
+local ScreenGui = game.CoreGui:FindFirstChild(guiName)
+if not ScreenGui then
+    ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = guiName
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.DisplayOrder = -1 -- thấp hơn menu chính
+    ScreenGui.Parent = game.CoreGui
+end
+
+local Frame = ScreenGui:FindFirstChild("TrackerFrame") or Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.Name = "TrackerFrame"
+
+Frame.Size = UDim2.new(0, 180, 0, 60)
+Frame.Position = UDim2.new(0.5, -90, 0.35, 0) -- 👇 kéo xuống dưới menu
+Frame.BackgroundColor3 = Color3.fromRGB(25,25,35)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+Frame.Visible = false
+Frame.ZIndex = 1
+
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
+
+local Stroke = Frame:FindFirstChild("UIStroke") or Instance.new("UIStroke")
+Stroke.Parent = Frame
+Stroke.Color = Color3.fromRGB(150,80,250)
+
+local NameLabel = Frame:FindFirstChild("NameLabel") or Instance.new("TextLabel")
+NameLabel.Parent = Frame
+NameLabel.Size = UDim2.new(1,0,0,25)
+NameLabel.BackgroundTransparency = 1
+NameLabel.Text = "MÁU BOSS"
+NameLabel.TextColor3 = Color3.fromRGB(255,255,255)
+NameLabel.Font = Enum.Font.GothamBold
+NameLabel.TextSize = 14
+
+local HealthLabel = Frame:FindFirstChild("HealthLabel") or Instance.new("TextLabel")
+HealthLabel.Parent = Frame
+HealthLabel.Size = UDim2.new(1,0,0,30)
+HealthLabel.Position = UDim2.new(0,0,0.4,0)
+HealthLabel.BackgroundTransparency = 1
+HealthLabel.Text = "HP: Đang tìm..."
+HealthLabel.Font = Enum.Font.GothamBold
+HealthLabel.TextSize = 18
+
+RunService.RenderStepped:Connect(function()
+    local target
+
+    for _,obj in pairs(workspace:GetDescendants()) do
+        if obj.Name == "NPC2" and obj:FindFirstChild("Humanoid") then
+            target = obj.Humanoid
+            break
+        end
+    end
+
+    if target and target.Health > 0 then
+        local percent = math.floor((target.Health / target.MaxHealth) * 100)
+
+        HealthLabel.Text = "HP: "..percent.."%"
+
+        -- 🎨 FIX MÀU
+        if percent <= 10 then
+            HealthLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- đỏ
+        elseif percent <= 30 then
+            HealthLabel.TextColor3 = Color3.fromRGB(255, 180, 0) -- vàng
+        else
+            HealthLabel.TextColor3 = Color3.fromRGB(0, 255, 127) -- xanh
+        end
+
+        Frame.Visible = _G.ShowBossTracker
+    else
+        HealthLabel.Text = "HP: NPC NOT FOUND"
+        HealthLabel.TextColor3 = Color3.fromRGB(255,255,255)
+        Frame.Visible = _G.ShowBossTracker
+    end
+end)
+
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+-- 🛠️ HỆ THỐNG GÓC NHÌN trên boss
+--------------------------------------------------------------------
+local Player = game.Players.LocalPlayer
+
+local RunService = game:GetService("RunService")
+
+local ArenaCenter = Vector3.new(-2790, 233, -1760)
+
+local ArenaRadius = 55
+
+local CameraHeight = 60
+
+local OrbitSpeed = 0.3
+
+local currentAngle = 0
+
+local cameraConnection = nil
+
+local cameraPart = nil
+
+local function getBoss2()
+
+    local gh2 = workspace:FindFirstChild("GiangHo2")
+
+    if not gh2 then return nil end
+
+    local npcs = gh2:FindFirstChild("NPCs")
+
+    if not npcs then return nil end
+
+    return npcs:FindFirstChild("NPC2")
+
+end
+
+local function SetupArenaCamera(enabled)
+
+    if enabled then
+
+        if cameraConnection then
+
+            cameraConnection:Disconnect()
+
+            cameraConnection = nil
+
+        end
+
+        if cameraPart then
+
+            cameraPart:Destroy()
+
+            cameraPart = nil
+
+        end
+
+        
+
+        cameraPart = Instance.new("Part")
+
+        cameraPart.Name = "ArenaCameraAnchor"
+
+        cameraPart.Size = Vector3.new(1, 1, 1)
+
+        cameraPart.Transparency = 1
+
+        cameraPart.CanCollide = false
+
+        cameraPart.Anchored = true
+
+        cameraPart.Parent = workspace
+
+        
+
+        workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
+
+        currentAngle = 0
+
+        
+
+        cameraConnection = RunService.RenderStepped:Connect(function(deltaTime)
+
+            if enabled then
+
+                currentAngle = currentAngle + (OrbitSpeed * deltaTime)
+
+                
+
+                local offsetX = math.cos(currentAngle) * ArenaRadius
+
+                local offsetZ = math.sin(currentAngle) * ArenaRadius
+
+                
+
+                local currentCenter = ArenaCenter
+
+                local liveBoss = getBoss2()
+
+                if liveBoss and liveBoss:FindFirstChild("HumanoidRootPart") then
+
+                    currentCenter = liveBoss.HumanoidRootPart.Position
+
+                end
+
+                
+
+                local cameraPos = Vector3.new(
+
+                    currentCenter.X + offsetX,
+
+                    currentCenter.Y + CameraHeight,
+
+                    currentCenter.Z + offsetZ
+
+                )
+
+                
+
+                cameraPart.CFrame = CFrame.new(cameraPos, currentCenter)
+
+                workspace.CurrentCamera.CFrame = cameraPart.CFrame
+
+                workspace.CurrentCamera.CameraSubject = cameraPart
+
+            end
+
+        end)
+
+    else
+
+        if cameraConnection then
+
+            cameraConnection:Disconnect()
+
+            cameraConnection = nil
+
+        end
+
+        if cameraPart then
+
+            cameraPart:Destroy()
+
+            cameraPart = nil
+
+        end
+
+        workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+
+        if Player.Character then
+
+            workspace.CurrentCamera.CameraSubject = Player.Character:FindFirstChildOfClass("Humanoid")
+
+        end
+
+    end
+
+end
+
+--------------------------------------------------------------------
+-- 🥊 PVP COMBAT - FULL FEATURED (FIXED v2.0)
+--------------------------------------------------------------------
+
+-- ===== SERVICES =====
+local Players         = game:GetService("Players")
+local RunService      = game:GetService("RunService")
+local UserInputService= game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser     = game:GetService("VirtualUser")
+
+local player      = Players.LocalPlayer
+local camera      = workspace.CurrentCamera
+
+-- ===== CONFIG =====
+local customJumpForce = 85
+local attackDelay     = 0.08
+local lastBuy         = 0
+
+-- ===== DEFAULTS =====
+if _G.PvpSpeedActive    == nil then _G.PvpSpeedActive    = false end
+if _G.PvpSpinActive     == nil then _G.PvpSpinActive     = false end
+if _G.PvpAimNoCamActive == nil then _G.PvpAimNoCamActive = false end
+if _G.PvpJumpActive     == nil then _G.PvpJumpActive     = false end
+if _G.PvpAutoAttack     == nil then _G.PvpAutoAttack     = false end
+if _G.PvpHitboxActive   == nil then _G.PvpHitboxActive   = true  end
+if _G.PvpHealthActive   == nil then _G.PvpHealthActive   = true  end
+if _G.AutoBandageEnabled== nil then _G.AutoBandageEnabled= false end
+if _G.AutoBuyBandage    == nil then _G.AutoBuyBandage    = false end
+if _G.AutoBuyBandageAmount == nil then _G.AutoBuyBandageAmount = 1 end
+
+-- ===== SCREENGUI =====
+local ScreenGui
+local function getOrCreateScreenGui()
+    local existing = player.PlayerGui:FindFirstChild("VND_ESP_Gui")
+    if existing then return existing end
+    local sg = Instance.new("ScreenGui")
+    sg.Name          = "VND_ESP_Gui"
+    sg.ResetOnSpawn  = false
+    sg.Parent        = player.PlayerGui
+    return sg
+end
+ScreenGui = getOrCreateScreenGui()
+
+-- ===== STATE =====
+local activeHitboxes   = {}
+local activeHealthGuis = {}
+
+-- ===== HELPERS =====
+local function clearAllHitboxes()
+    for name, box in pairs(activeHitboxes) do
+        pcall(function() box:Destroy() end)
+        activeHitboxes[name] = nil
+    end
+end
+
+local function clearAllHealthGuis()
+    for name, gui in pairs(activeHealthGuis) do
+        pcall(function() gui:Destroy() end)
+        activeHealthGuis[name] = nil
+    end
+end
+
+local function getClosestPlayer()
+    local myRoot = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not myRoot then return nil end
+
+    local closest, shortest = nil, math.huge
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= player then
+            local char = p.Character
+            local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+            local hum  = char and char:FindFirstChildOfClass("Humanoid")
+            if hrp and hum and hum.Health > 0 then
+                local dist = (myRoot.Position - hrp.Position).Magnitude
+                if dist < shortest then
+                    shortest = dist
+                    closest  = p
+                end
+            end
+        end
+    end
+    return closest
+end
+
+--------------------------------------------------------------------
+-- 🩺 ESP CARD – TẠO & CẬP NHẬT
+--------------------------------------------------------------------
+local function createHealthGui(p, pHead)
+    local bG        = Instance.new("BillboardGui")
+    bG.Size         = UDim2.new(0, 110, 0, 32)
+    bG.StudsOffset  = Vector3.new(0, 3.2, 0)
+    bG.AlwaysOnTop  = true
+    bG.Adornee      = pHead
+    bG.Parent       = ScreenGui
+
+    local bg = Instance.new("Frame", bG)
+    bg.Name                  = "Card"
+    bg.Size                  = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3      = Color3.fromRGB(8, 8, 12)
+    bg.BackgroundTransparency= 0.2
+    bg.BorderSizePixel       = 0
+    Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 5)
+
+    local stroke           = Instance.new("UIStroke", bg)
+    stroke.Color           = Color3.fromRGB(160, 160, 255)
+    stroke.Transparency    = 0.7
+    stroke.Thickness       = 1
+
+    local nameLabel              = Instance.new("TextLabel", bg)
+    nameLabel.Name               = "NameLabel"
+    nameLabel.Size               = UDim2.new(1, -6, 0, 14)
+    nameLabel.Position           = UDim2.new(0, 3, 0, 2)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text               = "⚔ " .. p.Name
+    nameLabel.TextColor3         = Color3.fromRGB(210, 210, 255)
+    nameLabel.Font               = Enum.Font.GothamBold
+    nameLabel.TextSize           = 10
+    nameLabel.TextXAlignment     = Enum.TextXAlignment.Left
+
+    local barBg                  = Instance.new("Frame", bg)
+    barBg.Name                   = "BarBg"
+    barBg.Size                   = UDim2.new(1, -6, 0, 7)
+    barBg.Position               = UDim2.new(0, 3, 0, 18)
+    barBg.BackgroundColor3       = Color3.fromRGB(35, 35, 35)
+    barBg.BorderSizePixel        = 0
+    Instance.new("UICorner", barBg).CornerRadius = UDim.new(0, 3)
+
+    local bar               = Instance.new("Frame", barBg)
+    bar.Name                = "Bar"
+    bar.Size                = UDim2.new(1, 0, 1, 0)
+    bar.BorderSizePixel     = 0
+    Instance.new("UICorner", bar).CornerRadius = UDim.new(0, 3)
+
+    local hpText                 = Instance.new("TextLabel", bg)
+    hpText.Name                  = "HpText"
+    hpText.Size                  = UDim2.new(1, -6, 0, 7)
+    hpText.Position              = UDim2.new(0, 3, 0, 18)
+    hpText.BackgroundTransparency= 1
+    hpText.TextColor3            = Color3.fromRGB(230, 230, 230)
+    hpText.Font                  = Enum.Font.GothamBold
+    hpText.TextSize              = 7
+    hpText.TextXAlignment        = Enum.TextXAlignment.Right
+
+    activeHealthGuis[p.Name] = bG
+end
+
+local function updateHealthGui(gui, pHum)
+    local pct  = math.clamp(pHum.Health / pHum.MaxHealth, 0, 1)
+    local card = gui:FindFirstChild("Card")
+    if not card then return end
+
+    local barBg  = card:FindFirstChild("BarBg")
+    local bar    = barBg and barBg:FindFirstChild("Bar")
+    local hpText = card:FindFirstChild("HpText")
+
+    if bar then
+        bar.Size             = UDim2.new(pct, 0, 1, 0)
+        bar.BackgroundColor3 = Color3.new(1 - pct, pct * 0.85, pct * 0.35)
+    end
+    if hpText then
+        hpText.Text = string.format("%d/%d", math.floor(pHum.Health), math.floor(pHum.MaxHealth))
+    end
+end
+
+--------------------------------------------------------------------
+-- ⌨️ JUMP
+--------------------------------------------------------------------
+UserInputService.JumpRequest:Connect(function()
+    if not _G.PvpJumpActive then return end
+    pcall(function()
+        local char = player.Character
+        local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+        local hum  = char and char:FindFirstChildOfClass("Humanoid")
+        if hrp and hum and hum:GetState() ~= Enum.HumanoidStateType.Freefall then
+            hrp.Velocity = Vector3.new(hrp.Velocity.X, customJumpForce, hrp.Velocity.Z)
+        end
+    end)
+end)
+
+--------------------------------------------------------------------
+-- 🗡️ AUTO ATTACK
+--------------------------------------------------------------------
+task.spawn(function()
+    while true do
+        if _G.PvpAutoAttack then
+            task.defer(function()
+                pcall(function()
+                    VirtualUser:ClickButton1(Vector2.new(
+                        camera.ViewportSize.X / 2,
+                        camera.ViewportSize.Y / 2
+                    ))
+                end)
+            end)
+        end
+        task.wait(attackDelay)
+    end
+end)
+
+--------------------------------------------------------------------
+-- 🔄 RENDER STEPPED – Speed / Spin / Aim
+--------------------------------------------------------------------
+RunService.RenderStepped:Connect(function()
+    pcall(function()
+        local char = player.Character
+        local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+        local hum  = char and char:FindFirstChildOfClass("Humanoid")
+
+        -- 1. Speed (CFrame – không bị kick)
+        if _G.PvpSpeedActive and hrp and hum and hum.MoveDirection.Magnitude > 0 then
+            hrp.CFrame = hrp.CFrame + (hum.MoveDirection * 3)
+        end
+
+        -- 2. Spin
+        if _G.PvpSpinActive and hrp then
+            if not hrp:FindFirstChild("VND_SpinVelocity") then
+                local spin               = Instance.new("BodyAngularVelocity")
+                spin.Name                = "VND_SpinVelocity"
+                spin.MaxTorque           = Vector3.new(0, math.huge, 0)
+                spin.AngularVelocity     = Vector3.new(0, 40, 0)
+                spin.Parent              = hrp
+            end
+        else
+            if hrp then
+                local sv = hrp:FindFirstChild("VND_SpinVelocity")
+                if sv then sv:Destroy() end
+            end
+        end
+
+        -- 3. Aim (không di chuyển camera)
+        if _G.PvpAimNoCamActive and hrp then
+            local target = getClosestPlayer()
+            if target and target.Character then
+                local tHrp = target.Character:FindFirstChild("HumanoidRootPart")
+                if tHrp then
+                    local lookAt = Vector3.new(tHrp.Position.X, hrp.Position.Y, tHrp.Position.Z)
+                    hrp.CFrame   = CFrame.new(hrp.Position, lookAt)
+                end
+            end
+        end
+    end)
+end)
+
+--------------------------------------------------------------------
+-- 💓 HEARTBEAT – Hitbox + ESP Card
+--------------------------------------------------------------------
+RunService.Heartbeat:Connect(function()
+    -- Tắt cả nếu không cần
+    if not _G.PvpHitboxActive and not _G.PvpHealthActive then
+        if next(activeHitboxes)   then clearAllHitboxes()    end
+        if next(activeHealthGuis) then clearAllHealthGuis()  end
+        return
+    end
+
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= player then
+            local pChar = p.Character
+            local pHrp  = pChar and pChar:FindFirstChild("HumanoidRootPart")
+            local pHead = pChar and pChar:FindFirstChild("Head")
+            local pHum  = pChar and pChar:FindFirstChildOfClass("Humanoid")
+
+            -- === HITBOX ===
+            if _G.PvpHitboxActive and pHrp and pHum and pHum.Health > 0 then
+                if pHrp.Size ~= Vector3.new(5, 5, 5) then
+                    pcall(function()
+                        pHrp.Size       = Vector3.new(5, 5, 5)
+                        pHrp.CanCollide = false
+                    end)
+                end
+                if not activeHitboxes[p.Name] then
+                    local box           = Instance.new("BoxHandleAdornment")
+                    box.Size            = Vector3.new(5, 6, 5)
+                    box.Color3          = Color3.fromRGB(255, 50, 50)
+                    box.Transparency    = 0.55
+                    box.AlwaysOnTop     = true
+                    box.Adornee         = pHrp
+                    box.Parent          = ScreenGui
+                    activeHitboxes[p.Name] = box
+                end
+            else
+                if activeHitboxes[p.Name] then
+                    pcall(function() activeHitboxes[p.Name]:Destroy() end)
+                    activeHitboxes[p.Name] = nil
+                end
+                if pHrp then
+                    pcall(function() pHrp.Size = Vector3.new(2, 2, 1) end)
+                end
+            end
+
+            -- === ESP CARD ===
+            if _G.PvpHealthActive and pHead and pHum and pHum.Health > 0 then
+                if not activeHealthGuis[p.Name] then
+                    createHealthGui(p, pHead)
+                end
+                updateHealthGui(activeHealthGuis[p.Name], pHum)
+            else
+                if activeHealthGuis[p.Name] then
+                    pcall(function() activeHealthGuis[p.Name]:Destroy() end)
+                    activeHealthGuis[p.Name] = nil
+                end
+            end
+        end
+    end
+end)
+
+--------------------------------------------------------------------
+-- 🔁 RESPAWN / LEAVE CLEANUP
+--------------------------------------------------------------------
+player.CharacterAdded:Connect(function()
+    clearAllHitboxes()
+    clearAllHealthGuis()
+    -- Tái tạo ScreenGui nếu bị xoá khi respawn
+    ScreenGui = getOrCreateScreenGui()
+end)
+
+--------------------------------------------------------------------
+-- 🩹 AUTO BANDAGE
+--------------------------------------------------------------------
+local HEAL_THRESHOLD = 0.8
+local HEAL_COOLDOWN = 0.8
+local lastHeal = 0
+
+task.spawn(function()
+    while task.wait(0.1) do
+        if _G.AutoBandageEnabled then
+            pcall(function()
+                local char = player.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+                if hum
+                    and hum.Health > 0
+                    and hum.Health < hum.MaxHealth * HEAL_THRESHOLD
+                    and (os.clock() - lastHeal) >= HEAL_COOLDOWN then
+
+                    lastHeal = os.clock()
+                    ReplicatedStorage.Remotes.Heal:FireServer()
+                end
+            end)
+        end
+    end
+end)
+
+--------------------------------------------------------------------
+-- 🛒 AUTO BUY BANDAGE (mỗi 15 giây)
+--------------------------------------------------------------------
+local ShopRemote
+pcall(function()
+    ShopRemote = ReplicatedStorage
+        :WaitForChild("KnitPackages")
+        :WaitForChild("_Index")
+        :WaitForChild("sleitnick_knit@1.7.0")
+        :WaitForChild("knit")
+        :WaitForChild("Services")
+        :WaitForChild("ShopService")
+        :WaitForChild("RE")
+        :WaitForChild("buyItem")
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(1)
+        if _G.AutoBuyBandage and ShopRemote then
+            local now = tick()
+            if (now - lastBuy) >= 15 then
+                lastBuy = now
+                local qty = math.max(1, math.floor(tonumber(_G.AutoBuyBandageAmount) or 1))
+                pcall(function()
+                    print("[AutoBuy] Băng gạc x" .. qty)
+                    ShopRemote:FireServer("băng gạc", qty)
+                end)
+            end
+        end
+    end
+end)
+
+print("[VND PVP] Script loaded ✅")
+
+------------------------------------------------
+-- HỆ THỐNG QUẢN LÝ ĐA CẤU HÌNH ĐƠN LẺ ĐỘC LẬP
+------------------------------------------------
+if makefolder and not isfolder(ConfigFolderName) then
+    makefolder(ConfigFolderName)
+end
+
+local RegisteredToggles = {
+    ["AutoFarmLevelToggle"] = "AutoFarmLevel",
+    ["AutoFarmChuaToggle"] = "AutoFarmChua",
+    ["AntiAFKToggle"] = "AntiAFKEnabled",
+    ["AutoFarmBanhMiToggle"] = "AutoFarmBanhMi",
+    ["AutoFarmBenhVienToggle"] = "AutoFarmBenhVien",
+    ["AutoFarmCaoSuToggle"] = "AutoFarmCaoSu",
+    ["AutoFarmChotCongAnToggle"] = "AutoFarmChotCongAn",
+    ["AutoFarmSuKienToggle"] = "AutoFarmSuKien",
+    ["AutoFarmMatOngToggle"] = "AutoFarmMatOng", 
+    ["TeleportToBossToggle"] = "TeleportToBoss",
+    ["AutoFarmBossCircleToggle"] = "AutoFarmBossCircle",
+    ["AutoAimBossNoCamToggle"] = "AutoAimBossNoCam",
+    ["FreecamToggle"] = "FreecamEnabled",
+    ["LockCameraToggle"] = "LockCameraEnabled",
+    ["PvpProModeToggle"] = "PvpProMode",
+    ["PvpAutoAttackToggle"] = "PvpAutoAttack",
+    ["PvpSpinToggle"] = "PvpSpinActive",
+    ["PvpAimNoCamToggle"] = "PvpAimNoCamActive",
+    ["PvpHitboxToggle"] = "PvpHitboxActive",
+    ["PvpHealthToggle"] = "PvpHealthActive",
+    ["AutoBandageToggle"] = "AutoBandageEnabled",
+    ["AutoBuyBandageToggle"] = "AutoBuyBandage",
+    ["PvpSpeedToggle"] = "PvpSpeedActive",
+    ["PvpJumpToggle"] = "PvpJumpActive",
+    ["FPSBoostNewToggle"] = "FPSBoostState",
+    ["Reduce20Toggle"] = "Reduce20State",
+    ["Reduce40Toggle"] = "Reduce40State",
+    ["Reduce60Toggle"] = "Reduce60State",
+    ["Reduce100Toggle"] = "Reduce100State",
+    ["ClearEverythingToggle"] = "ClearEverythingState"
+}
+
+local function getAllConfigFiles()
+    local list = {}
+    if listfiles then
+        local files = listfiles(ConfigFolderName)
+        for _, fullPath in ipairs(files) do
+            local name = fullPath:match("([^/\\]+)%.json$") or fullPath:match("([^/\\]+)$")
+            if name then table.insert(list, name) end
+        end
+    end
+    if #list == 0 then table.insert(list, "Chưa có config nào") end
+    return list
+end
+
+local function saveGlobalSystemSettings()
+    local globalData = {
+        UseConfigSystem = _G.UseConfigSystem,
+        SelectedConfigName = _G.SelectedConfigName
+    }
+    writefile(GlobalSettingsFile, HttpService:JSONEncode(globalData))
+end
+
+local function saveNewConfigWithName(customName)
+    if customName == "" or customName == "Nhập tên cấu hình cần tạo..." then
+        Fluent:Notify({Title = "Lỗi", Content = "Vui lòng nhập tên cấu hình hợp lệ trước!", Duration = 3})
+        return
+    end
+    
+    local configData = {}
+    for uiName, globalVar in pairs(RegisteredToggles) do
+         configData[globalVar] = _G[globalVar] or false
+    end
+    
+    local filePath = ConfigFolderName .. "/" .. customName .. ".json"
+    writefile(filePath, HttpService:JSONEncode(configData))
+    
+    _G.SelectedConfigName = customName
+    saveGlobalSystemSettings()
+    
+    if Fluent.Options and Fluent.Options["SelectConfigDropdown"] then
+        local newList = getAllConfigFiles()
+        Fluent.Options["SelectConfigDropdown"]:SetValues(newList)
+        Fluent.Options["SelectConfigDropdown"]:SetValue(customName)
+    end
+    
+    Fluent:Notify({Title = "Hệ thống Config", Content = "Đã lưu cấu hình đơn: " .. customName, Duration = 3})
+end
+
+local function loadSelectedConfig(customName)
+    if customName == "Chưa có config nào" or customName == "" then return end
+    local filePath = ConfigFolderName .. "/" .. customName .. ".json"
+    if isfile(filePath) then
+        local fileContent = readfile(filePath)
+        local success, data = pcall(function() return HttpService:JSONDecode(fileContent) end)
+        
+        if success and data then
+             for uiName, globalVar in pairs(RegisteredToggles) do
+                if data[globalVar] ~= nil then
+                    _G[globalVar] = data[globalVar]
+                    
+                    if Fluent.Options and Fluent.Options[uiName] then
+                         Fluent.Options[uiName]:SetValue(data[globalVar])
+                    end
+                    
+                    if globalVar == "FPSBoostState" and data[globalVar] == true then activateFPSBoost() end
+                    if globalVar == "Reduce20State" then toggleGraphicReduction(20, data[globalVar]) end
+                    if globalVar == "Reduce40State" then toggleGraphicReduction(40, data[globalVar]) end
+                    if globalVar == "Reduce60State" then toggleGraphicReduction(60, data[globalVar]) end
+                    if globalVar == "Reduce100State" then toggleGraphicReduction(100, data[globalVar]) end
+                    if globalVar == "ClearEverythingState" and data[globalVar] == true then
+                        activateFPSBoost()
+                        for _, v in ipairs(workspace:GetDescendants()) do
+                            if v:IsA("Decal") or v:IsA("Texture") or v:IsA("Sound") then pcall(function() v:Destroy() end) end
+                            if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") then v.Enabled = false end
+                            if v:IsA("BasePart") then v.Material = Enum.Material.SmoothPlastic v.Reflectance = 0 v.CastShadow = false end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function deleteSelectedConfig(customName)
+    if customName == "Chưa có config nào" or customName == "" then return end
+    local filePath = ConfigFolderName .. "/" .. customName .. ".json"
+    if isfile(filePath) then
+        delfile(filePath)
+        _G.SelectedConfigName = ""
+        saveGlobalSystemSettings()
+        
+        local newList = getAllConfigFiles()
+        if Fluent.Options and Fluent.Options["SelectConfigDropdown"] then
+            Fluent.Options["SelectConfigDropdown"]:SetValues(newList)
+            Fluent.Options["SelectConfigDropdown"]:SetValue(newList[1] or "Chưa có config nào")
+        end
+        
+        Fluent:Notify({Title = "Hệ thống Config", Content = "Đã xóa file cấu hình đơn: " .. customName, Duration = 3})
+    else
+        Fluent:Notify({Title = "Lỗi", Content = "Không tìm thấy file để xóa!", Duration = 3})
+    end
+end
+
+-- =========================================================
+--              VND HUB - INFO UI
+--              PURPLE RANK EDITOR
+--              FIXED RAINBOW + MANUAL APPLY
+--              NO AUTO TEXT/COLOR OVERRIDE
+-- =========================================================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+
+if not LocalPlayer then
+    return
+end
+
+-- =========================================================
+-- DESTROY OLD
+-- =========================================================
+
+pcall(function()
+    local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+
+    if PlayerGui then
+        local Old = PlayerGui:FindFirstChild("VNDHubInfoUI")
+
+        if Old then
+            Old:Destroy()
+        end
+    end
+end)
+
+-- =========================================================
+-- GLOBAL
+-- =========================================================
+
+_G.InfoUIState = false
+
+-- =========================================================
+-- UI REFERENCES
+-- =========================================================
+
+local ScreenGui
+local MainFrame
+local Header
+
+local ApplyBtn
+local RainbowBtn
+local StatusBar
+
+local BoxUser
+local BoxRank
+local BoxLevel
+local BoxName
+
+local UserColorBtn
+local RankColorBtn
+local LevelColorBtn
+local NameColorBtn
+
+-- =========================================================
+-- COLOR PICKER
+-- =========================================================
+
+local ColorPicker
+local ColorPickerTitle
+local ColorPreview
+local SVFrame
+local HueFrame
+local SVMarker
+local HueMarker
+local HexBox
+local ClosePicker
+
+-- =========================================================
+-- RANK UI
+-- =========================================================
+
+local RankUIReference
+
+local labelUsername
+local labelDisplay
+local labelGroupRank
+
+local LastCharacter
+
+-- =========================================================
+-- STATE
+-- =========================================================
+
+local UICreated = false
+local UIReady = false
+local InfoUIVisible = false
+local Applying = false
+
+local StableCount = 0
+local StableNeeded = 2
+
+local RainbowEnabled = false
+local ColorTarget = nil
+
+local PickerConnection
+local MainDragConnection
+
+local customUsername = nil
+local customDisplay = nil
+local customLevel = nil
+local customName = nil
+
+-- =========================================================
+-- LAST APPLIED STATE
+-- =========================================================
+-- Đây là trạng thái chuẩn để Rainbow OFF khôi phục lại.
+
+local AppliedState = {
+    UsernameText = nil,
+    UsernameColor = nil,
+
+    RankText = nil,
+    RankColor = nil,
+
+    Level = nil,
+    Name = nil,
+
+    LevelColor = nil,
+    NameColor = nil
+}
+
+-- =========================================================
+-- COLORS
+-- =========================================================
+
+local UsernameColor = Color3.fromRGB(255,255,255)
+local RankColor = Color3.fromRGB(255,220,80)
+local LevelColor = Color3.fromRGB(180,100,255)
+local NameColor = Color3.fromRGB(255,255,255)
+
+-- =========================================================
+-- PICKER STATE
+-- =========================================================
+
+local CurrentHue = 0
+local CurrentSaturation = 1
+local CurrentValue = 1
+
+-- =========================================================
+-- UTILITY
+-- =========================================================
+
+local function SafeDestroy(Object)
+    if Object then
+        pcall(function()
+            Object:Destroy()
+        end)
+    end
+end
+
+local function IsAlive(Object)
+    if not Object then
+        return false
+    end
+
+    local Success, Result = pcall(function()
+        return Object.Parent ~= nil
+    end)
+
+    return Success and Result
+end
+
+local function IsLocalCharacterDescendant(Object)
+    if not Object then
+        return false
+    end
+
+    local Character = LocalPlayer.Character
+
+    if not Character then
+        return false
+    end
+
+    local Success, Result = pcall(function()
+        return Object:IsDescendantOf(Character)
+    end)
+
+    return Success and Result
+end
+
+-- =========================================================
+-- RICHTEXT
+-- =========================================================
+
+local function EscapeRichText(Text)
+    Text = tostring(Text or "")
+
+    Text = string.gsub(Text,"&","&amp;")
+    Text = string.gsub(Text,"<","&lt;")
+    Text = string.gsub(Text,">","&gt;")
+    Text = string.gsub(Text,'"',"&quot;")
+    Text = string.gsub(Text,"'","&apos;")
+
+    return Text
+end
+
+-- =========================================================
+-- COLOR
+-- =========================================================
+
+local function ColorToHex(Color)
+    if not Color then
+        return "#FFFFFF"
+    end
+
+    local R = math.floor(Color.R * 255 + 0.5)
+    local G = math.floor(Color.G * 255 + 0.5)
+    local B = math.floor(Color.B * 255 + 0.5)
+
+    return string.format(
+        "#%02X%02X%02X",
+        R,
+        G,
+        B
+    )
+end
+
+local function HexToColor(Hex)
+    Hex = tostring(Hex or "")
+
+    Hex = string.gsub(Hex,"#","")
+    Hex = string.gsub(Hex,"%s+","")
+
+    if #Hex ~= 6 then
+        return nil
+    end
+
+    local R = tonumber(string.sub(Hex,1,2),16)
+    local G = tonumber(string.sub(Hex,3,4),16)
+    local B = tonumber(string.sub(Hex,5,6),16)
+
+    if not R or not G or not B then
+        return nil
+    end
+
+    return Color3.fromRGB(R,G,B)
+end
+
+-- =========================================================
+-- STATUS
+-- =========================================================
+
+local function SetStatus(Text,Color)
+    if not StatusBar then
+        return
+    end
+
+    pcall(function()
+        StatusBar.Text = tostring(Text or "")
+
+        if Color then
+            StatusBar.TextColor3 = Color
+        end
+    end)
+end
+
+-- =========================================================
+-- NORMALIZE
+-- =========================================================
+
+local function NormalizeText(Text)
+    Text = tostring(Text or "")
+    Text = string.lower(Text)
+
+    Text = string.gsub(Text,"<.->","")
+    Text = string.gsub(Text,"%s+"," ")
+    Text = string.gsub(Text,"^%s*(.-)%s*$","%1")
+
+    return Text
+end
+
+-- =========================================================
+-- LABEL SCORE
+-- =========================================================
+
+local function ScoreUsernameLabel(Label)
+    if not Label then
+        return 0
+    end
+
+    local Score = 0
+
+    local Text = NormalizeText(Label.Text)
+    local Name = NormalizeText(Label.Name)
+
+    local Username = NormalizeText(LocalPlayer.Name)
+    local DisplayName = NormalizeText(LocalPlayer.DisplayName)
+
+    if Text == "@" .. Username then
+        Score = Score + 150
+    end
+
+    if Text == Username then
+        Score = Score + 140
+    end
+
+    if Text == DisplayName then
+        Score = Score + 130
+    end
+
+    if string.find(Name,"username",1,true) then
+        Score = Score + 100
+    end
+
+    if string.find(Name,"displayname",1,true) then
+        Score = Score + 90
+    end
+
+    if string.find(Name,"playername",1,true) then
+        Score = Score + 80
+    end
+
+    if string.find(Name,"name",1,true) then
+        Score = Score + 20
+    end
+
+    return Score
+end
+
+local function ScoreRankLabel(Label)
+    if not Label then
+        return 0
+    end
+
+    local Score = 0
+
+    local Text = NormalizeText(Label.Text)
+    local Name = NormalizeText(Label.Name)
+
+    if string.find(Name,"rank",1,true) then
+        Score = Score + 100
+    end
+
+    if string.find(Name,"role",1,true) then
+        Score = Score + 90
+    end
+
+    if string.find(Name,"title",1,true) then
+        Score = Score + 80
+    end
+
+    if string.find(Text,"rank",1,true) then
+        Score = Score + 70
+    end
+
+    if string.find(Text,"danh",1,true) then
+        Score = Score + 65
+    end
+
+    if string.find(Text,"member",1,true) then
+        Score = Score + 50
+    end
+
+    if string.find(Text,"vip",1,true) then
+        Score = Score + 40
+    end
+
+    return Score
+end
+
+local function ScoreLevelLabel(Label)
+    if not Label then
+        return 0
+    end
+
+    local Score = 0
+
+    local Text = NormalizeText(Label.Text)
+    local Name = NormalizeText(Label.Name)
+
+    if string.find(Name,"level",1,true) then
+        Score = Score + 110
+    end
+
+    if string.find(Name,"lvl",1,true) then
+        Score = Score + 100
+    end
+
+    if string.find(Text,"level",1,true) then
+        Score = Score + 80
+    end
+
+    if string.find(Text,"lv",1,true) then
+        Score = Score + 70
+    end
+
+    if string.find(Text,"cấp",1,true) then
+        Score = Score + 65
+    end
+
+    if string.match(Text,"%d+") then
+        Score = Score + 25
+    end
+
+    return Score
+end
+
+-- =========================================================
+-- CLEAR REFERENCES
+-- =========================================================
+
+local function ClearReferences()
+    labelUsername = nil
+    labelDisplay = nil
+    labelGroupRank = nil
+    UIReady = false
+end
+
+-- =========================================================
+-- GET LABELS
+-- =========================================================
+
+local function GetLabels(Gui)
+    local Result = {}
+
+    if not Gui then
+        return Result
+    end
+
+    if not IsLocalCharacterDescendant(Gui) then
+        return Result
+    end
+
+    if Gui:IsA("TextLabel") then
+        table.insert(Result,Gui)
+    end
+
+    local Descendants = {}
+
+    pcall(function()
+        Descendants = Gui:GetDescendants()
+    end)
+
+    for _,Object in ipairs(Descendants) do
+        if Object:IsA("TextLabel") then
+            if IsLocalCharacterDescendant(Object) then
+                table.insert(Result,Object)
+            end
+        end
+    end
+
+    return Result
+end
+
+-- =========================================================
+-- FIND RANK UI
+-- =========================================================
+
+local function FindValidRankUI()
+
+    local Character = LocalPlayer.Character
+
+    if not Character then
+        return nil
+    end
+
+    local ExactNames = {
+        "RankUI",
+        "NameTag",
+        "Nametag",
+        "NameTagUI",
+        "RankGui",
+        "RankGUI",
+        "Overhead",
+        "OverheadGui",
+        "PlayerRank",
+        "PlayerTag"
+    }
+
+    local Candidates = {}
+    local Added = {}
+
+    for _,Name in ipairs(ExactNames) do
+
+        local Object
+
+        pcall(function()
+            Object = Character:FindFirstChild(Name,true)
+        end)
+
+        if Object then
+
+            if Object:IsA("BillboardGui")
+                or Object:IsA("SurfaceGui")
+                or Object:IsA("Frame")
+                or Object:IsA("Folder")
+                or Object:IsA("Model") then
+
+                if not Added[Object] then
+                    Added[Object] = true
+                    table.insert(Candidates,Object)
+                end
+            end
+        end
+    end
+
+    local Descendants = {}
+
+    pcall(function()
+        Descendants = Character:GetDescendants()
+    end)
+
+    for _,Object in ipairs(Descendants) do
+
+        if Object:IsA("BillboardGui")
+            or Object:IsA("SurfaceGui") then
+
+            if not Added[Object] then
+                Added[Object] = true
+                table.insert(Candidates,Object)
+            end
+        end
+    end
+
+    local Best
+    local BestScore = -math.huge
+
+    for _,Gui in ipairs(Candidates) do
+
+        if IsLocalCharacterDescendant(Gui) then
+
+            local Labels = GetLabels(Gui)
+
+            if #Labels >= 3 then
+
+                local Score = #Labels * 10
+
+                local GuiName =
+                    NormalizeText(Gui.Name)
+
+                if string.find(
+                    GuiName,
+                    "rank",
+                    1,
+                    true
+                ) then
+                    Score = Score + 80
+                end
+
+                if string.find(
+                    GuiName,
+                    "name",
+                    1,
+                    true
+                ) then
+                    Score = Score + 50
+                end
+
+                if string.find(
+                    GuiName,
+                    "tag",
+                    1,
+                    true
+                ) then
+                    Score = Score + 40
+                end
+
+                if Score > BestScore then
+                    BestScore = Score
+                    Best = Gui
+                end
+            end
+        end
+    end
+
+    return Best
+end
+
+-- =========================================================
+-- RESOLVE LABELS
+-- =========================================================
+
+local function ResolveLabels(Gui)
+
+    local Labels = GetLabels(Gui)
+
+    if #Labels < 3 then
+        return false
+    end
+
+    local UsernameLabel
+    local UsernameScore = -math.huge
+
+    for _,Label in ipairs(Labels) do
+
+        local Score =
+            ScoreUsernameLabel(Label)
+
+        if Score > UsernameScore then
+            UsernameScore = Score
+            UsernameLabel = Label
+        end
+    end
+
+    local RankLabel
+    local RankScore = -math.huge
+
+    for _,Label in ipairs(Labels) do
+
+        if Label ~= UsernameLabel then
+
+            local Score =
+                ScoreRankLabel(Label)
+
+            if Score > RankScore then
+                RankScore = Score
+                RankLabel = Label
+            end
+        end
+    end
+
+    local LevelLabel
+    local LevelScore = -math.huge
+
+    for _,Label in ipairs(Labels) do
+
+        if Label ~= UsernameLabel
+            and Label ~= RankLabel then
+
+            local Score =
+                ScoreLevelLabel(Label)
+
+            if Score > LevelScore then
+                LevelScore = Score
+                LevelLabel = Label
+            end
+        end
+    end
+
+    if not UsernameLabel
+        or not RankLabel
+        or not LevelLabel then
+
+        return false
+    end
+
+    labelUsername = UsernameLabel
+    labelDisplay = RankLabel
+    labelGroupRank = LevelLabel
+
+    return true
+end
+
+-- =========================================================
+-- UPDATE REFERENCES
+-- =========================================================
+
+local function UpdateReferences()
+
+    local Character =
+        LocalPlayer.Character
+
+    if not Character then
+        return false
+    end
+
+    if LastCharacter ~= Character then
+
+        LastCharacter = Character
+        RankUIReference = nil
+
+        ClearReferences()
+
+        StableCount = 0
+    end
+
+    if RankUIReference then
+
+        if not IsLocalCharacterDescendant(
+            RankUIReference
+        ) then
+
+            RankUIReference = nil
+            ClearReferences()
+
+            StableCount = 0
+        end
+    end
+
+    local Found =
+        FindValidRankUI()
+
+    if not Found then
+
+        StableCount = 0
+        UIReady = false
+
+        return false
+    end
+
+    if RankUIReference == Found then
+
+        StableCount =
+            StableCount + 1
+
+    else
+
+        RankUIReference = Found
+        StableCount = 1
+
+        ClearReferences()
+    end
+
+    if StableCount < StableNeeded then
+        return false
+    end
+
+    if not ResolveLabels(Found) then
+
+        UIReady = false
+
+        return false
+    end
+
+    UIReady = true
+
+    return true
+end
+
+-- =========================================================
+-- GET INPUT VALUES
+-- =========================================================
+
+local function GetInputText(Box)
+    if not Box then
+        return ""
+    end
+
+    local Value = ""
+
+    pcall(function()
+        Value = tostring(Box.Text or "")
+    end)
+
+    return Value
+end
+
+-- =========================================================
+-- GET LEVEL
+-- =========================================================
+
+local function GetLevel()
+
+    if customLevel ~= nil
+        and tostring(customLevel) ~= "" then
+
+        return tostring(customLevel)
+    end
+
+    local Value =
+        GetInputText(BoxLevel)
+
+    if Value ~= "" then
+        return Value
+    end
+
+    if AppliedState.Level ~= nil then
+        return tostring(AppliedState.Level)
+    end
+
+    return ""
+end
+
+-- =========================================================
+-- GET NAME
+-- =========================================================
+
+local function GetName()
+
+    if customName ~= nil
+        and tostring(customName) ~= "" then
+
+        return tostring(customName)
+    end
+
+    local Value =
+        GetInputText(BoxName)
+
+    if Value ~= "" then
+        return Value
+    end
+
+    if AppliedState.Name ~= nil then
+        return tostring(AppliedState.Name)
+    end
+
+    return ""
+end
+
+-- =========================================================
+-- BUILD LEVEL + NAME TEXT
+-- =========================================================
+
+local function BuildLevelNameText(
+    Level,
+    Name,
+    LevelColorValue,
+    NameColorValue
+)
+
+    Level = tostring(Level or "")
+    Name = tostring(Name or "")
+
+    Level = EscapeRichText(Level)
+    Name = EscapeRichText(Name)
+
+    local LevelHex =
+        ColorToHex(LevelColorValue)
+
+    local NameHex =
+        ColorToHex(NameColorValue)
+
+    if Level ~= "" and Name ~= "" then
+
+        return
+            '<font color="' ..
+            LevelHex ..
+            '">(Lv ' ..
+            Level ..
+            ')</font> ' ..
+            '<font color="' ..
+            NameHex ..
+            '">' ..
+            Name ..
+            '</font>'
+    end
+
+    if Level ~= "" then
+
+        return
+            '<font color="' ..
+            LevelHex ..
+            '">(Lv ' ..
+            Level ..
+            ')</font>'
+    end
+
+    if Name ~= "" then
+
+        return
+            '<font color="' ..
+            NameHex ..
+            '">' ..
+            Name ..
+            '</font>'
+    end
+
+    return ""
+end
+
+-- =========================================================
+-- TARGET COLOR
+-- =========================================================
+
+local function GetTargetColor(Target)
+
+    if Target == "Username" then
+        return UsernameColor
+    end
+
+    if Target == "Rank" then
+        return RankColor
+    end
+
+    if Target == "Level" then
+        return LevelColor
+    end
+
+    if Target == "Name" then
+        return NameColor
+    end
+
+    return Color3.fromRGB(255,255,255)
+end
+
+local function SetTargetColor(Color)
+
+    if not ColorTarget or not Color then
+        return
+    end
+
+    if ColorTarget == "Username" then
+
+        UsernameColor = Color
+
+        if UserColorBtn then
+            UserColorBtn.BackgroundColor3 = Color
+        end
+
+    elseif ColorTarget == "Rank" then
+
+        RankColor = Color
+
+        if RankColorBtn then
+            RankColorBtn.BackgroundColor3 = Color
+        end
+
+    elseif ColorTarget == "Level" then
+
+        LevelColor = Color
+
+        if LevelColorBtn then
+            LevelColorBtn.BackgroundColor3 = Color
+        end
+
+    elseif ColorTarget == "Name" then
+
+        NameColor = Color
+
+        if NameColorBtn then
+            NameColorBtn.BackgroundColor3 = Color
+        end
+    end
+
+    if ColorPreview then
+        ColorPreview.BackgroundColor3 = Color
+    end
+
+    if HexBox then
+        HexBox.Text = ColorToHex(Color)
+    end
+end
+
+-- =========================================================
+-- SAVE CURRENT APPLIED STATE
+-- =========================================================
+
+local function SaveAppliedState(
+    UsernameText,
+    RankText,
+    Level,
+    Name
+)
+
+    AppliedState.UsernameText =
+        tostring(UsernameText or "")
+
+    AppliedState.UsernameColor =
+        UsernameColor
+
+    AppliedState.RankText =
+        tostring(RankText or "")
+
+    AppliedState.RankColor =
+        RankColor
+
+    AppliedState.Level =
+        tostring(Level or "")
+
+    AppliedState.Name =
+        tostring(Name or "")
+
+    AppliedState.LevelColor =
+        LevelColor
+
+    AppliedState.NameColor =
+        NameColor
+end
+
+-- =========================================================
+-- APPLY NORMAL
+-- =========================================================
+-- Chỉ gọi khi người dùng bấm Apply.
+
+local function ApplyNormal()
+
+    if not UIReady then
+        return false
+    end
+
+    if not labelUsername
+        or not labelDisplay
+        or not labelGroupRank then
+
+        return false
+    end
+
+    local Success = false
+
+    -- =====================================================
+    -- USERNAME
+    -- =====================================================
+
+    local UsernameText =
+        GetInputText(BoxUser)
+
+    if UsernameText == "" then
+
+        if customUsername ~= nil
+            and tostring(customUsername) ~= "" then
+
+            UsernameText =
+                tostring(customUsername)
+
+        elseif AppliedState.UsernameText ~= nil then
+
+            UsernameText =
+                tostring(AppliedState.UsernameText)
+
+        else
+
+            UsernameText =
+                tostring(labelUsername.Text or "")
+        end
+    end
+
+    -- =====================================================
+    -- RANK
+    -- =====================================================
+
+    local RankText =
+        GetInputText(BoxRank)
+
+    if RankText == "" then
+
+        if customDisplay ~= nil
+            and tostring(customDisplay) ~= "" then
+
+            RankText =
+                tostring(customDisplay)
+
+        elseif AppliedState.RankText ~= nil then
+
+            RankText =
+                tostring(AppliedState.RankText)
+
+        else
+
+            RankText =
+                tostring(labelDisplay.Text or "")
+        end
+    end
+
+    -- =====================================================
+    -- LEVEL
+    -- =====================================================
+
+    local Level =
+        GetLevel()
+
+    -- =====================================================
+    -- NAME
+    -- =====================================================
+
+    local Name =
+        GetName()
+
+    -- =====================================================
+    -- APPLY USERNAME
+    -- =====================================================
+
+    if IsAlive(labelUsername)
+        and IsLocalCharacterDescendant(
+            labelUsername
+        ) then
+
+        pcall(function()
+
+            labelUsername.RichText = false
+
+            labelUsername.Text =
+                UsernameText
+
+            labelUsername.TextColor3 =
+                UsernameColor
+
+            Success = true
+        end)
+    end
+
+    -- =====================================================
+    -- APPLY RANK
+    -- =====================================================
+
+    if IsAlive(labelDisplay)
+        and IsLocalCharacterDescendant(
+            labelDisplay
+        ) then
+
+        pcall(function()
+
+            labelDisplay.RichText = false
+
+            labelDisplay.Text =
+                RankText
+
+            labelDisplay.TextColor3 =
+                RankColor
+
+            Success = true
+        end)
+    end
+
+    -- =====================================================
+    -- APPLY LEVEL + NAME
+    -- =====================================================
+
+    if IsAlive(labelGroupRank)
+        and IsLocalCharacterDescendant(
+            labelGroupRank
+        ) then
+
+        pcall(function()
+
+            local Text =
+                BuildLevelNameText(
+                    Level,
+                    Name,
+                    LevelColor,
+                    NameColor
+                )
+
+            labelGroupRank.RichText = true
+            labelGroupRank.Text = Text
+
+            Success = true
+        end)
+    end
+
+    if Success then
+
+        SaveAppliedState(
+            UsernameText,
+            RankText,
+            Level,
+            Name
+        )
+    end
+
+    return Success
+end
+
+-- =========================================================
+-- APPLY RAINBOW
+-- =========================================================
+-- QUAN TRỌNG:
+-- Rainbow chỉ đổi màu.
+-- KHÔNG đổi Text.
+-- KHÔNG gọi GetName/GetLevel để ghi Text mỗi frame.
+
+local function ApplyRainbow(Color)
+
+    if not RainbowEnabled
+        or not UIReady
+        or not Color then
+
+        return
+    end
+
+    if labelUsername
+        and IsAlive(labelUsername)
+        and IsLocalCharacterDescendant(
+            labelUsername
+        ) then
+
+        pcall(function()
+            labelUsername.TextColor3 = Color
+        end)
+    end
+
+    if labelDisplay
+        and IsAlive(labelDisplay)
+        and IsLocalCharacterDescendant(
+            labelDisplay
+        ) then
+
+        pcall(function()
+            labelDisplay.TextColor3 = Color
+        end)
+    end
+
+    if labelGroupRank
+        and IsAlive(labelGroupRank)
+        and IsLocalCharacterDescendant(
+            labelGroupRank
+        ) then
+
+        pcall(function()
+
+            labelGroupRank.RichText = true
+
+            local Level =
+                EscapeRichText(
+                    AppliedState.Level or
+                    GetLevel()
+                )
+
+            local Name =
+                EscapeRichText(
+                    AppliedState.Name or
+                    GetName()
+                )
+
+            if Level ~= ""
+                or Name ~= "" then
+
+                local Text = ""
+
+                if Level ~= "" then
+
+                    Text =
+                        Text ..
+                        '<font color="' ..
+                        ColorToHex(Color) ..
+                        '">(Lv ' ..
+                        Level ..
+                        ')</font>'
+                end
+
+                if Name ~= "" then
+
+                    if Text ~= "" then
+                        Text = Text .. " "
+                    end
+
+                    Text =
+                        Text ..
+                        '<font color="' ..
+                        ColorToHex(Color) ..
+                        '">' ..
+                        Name ..
+                        '</font>'
+                end
+
+                labelGroupRank.Text =
+                    Text
+            elseif AppliedState.UsernameText ~= nil then
+
+                -- Nếu hoàn toàn không có Level/Name,
+                -- không tự tạo "Player".
+                -- Giữ nguyên text hiện tại.
+            end
+        end)
+    end
+end
+
+-- =========================================================
+-- RESTORE NORMAL STATE
+-- =========================================================
+
+local function RestoreNormalState()
+
+    if not UIReady then
+        return false
+    end
+
+    local Success = false
+
+    if labelUsername
+        and IsAlive(labelUsername)
+        and IsLocalCharacterDescendant(
+            labelUsername
+        ) then
+
+        pcall(function()
+
+            labelUsername.RichText = false
+
+            if AppliedState.UsernameText ~= nil then
+                labelUsername.Text =
+                    AppliedState.UsernameText
+            end
+
+            if AppliedState.UsernameColor then
+                labelUsername.TextColor3 =
+                    AppliedState.UsernameColor
+            end
+
+            Success = true
+        end)
+    end
+
+    if labelDisplay
+        and IsAlive(labelDisplay)
+        and IsLocalCharacterDescendant(
+            labelDisplay
+        ) then
+
+        pcall(function()
+
+            labelDisplay.RichText = false
+
+            if AppliedState.RankText ~= nil then
+                labelDisplay.Text =
+                    AppliedState.RankText
+            end
+
+            if AppliedState.RankColor then
+                labelDisplay.TextColor3 =
+                    AppliedState.RankColor
+            end
+
+            Success = true
+        end)
+    end
+
+    if labelGroupRank
+        and IsAlive(labelGroupRank)
+        and IsLocalCharacterDescendant(
+            labelGroupRank
+        ) then
+
+        pcall(function()
+
+            local Level =
+                AppliedState.Level or ""
+
+            local Name =
+                AppliedState.Name or ""
+
+            labelGroupRank.RichText = true
+
+            labelGroupRank.Text =
+                BuildLevelNameText(
+                    Level,
+                    Name,
+                    AppliedState.LevelColor
+                        or LevelColor,
+                    AppliedState.NameColor
+                        or NameColor
+                )
+
+            Success = true
+        end)
+    end
+
+    return Success
+end
+
+-- =========================================================
+-- RAINBOW COLOR
+-- =========================================================
+
+local function GetRainbowColor()
+
+    local Hue =
+        (os.clock() / 5) % 1
+
+    return Color3.fromHSV(
+        Hue,
+        1,
+        1
+    )
+end
+
+-- =========================================================
+-- STOP PICKER
+-- =========================================================
+
+local function StopPicker()
+
+    if PickerConnection then
+
+        pcall(function()
+            PickerConnection:Disconnect()
+        end)
+
+        PickerConnection = nil
+    end
+end
+
+-- =========================================================
+-- PICKER
+-- =========================================================
+
+local function UpdateSV(X,Y)
+
+    X = math.clamp(X,0,1)
+    Y = math.clamp(Y,0,1)
+
+    CurrentSaturation = X
+    CurrentValue = 1 - Y
+
+    if SVMarker then
+
+        SVMarker.Position =
+            UDim2.new(
+                X,0,
+                Y,0
+            )
+    end
+
+    SetTargetColor(
+        Color3.fromHSV(
+            CurrentHue,
+            CurrentSaturation,
+            CurrentValue
+        )
+    )
+end
+
+local function UpdateHue(Y)
+
+    Y = math.clamp(Y,0,1)
+
+    CurrentHue = 1 - Y
+
+    if HueMarker then
+
+        HueMarker.Position =
+            UDim2.new(
+                0,-3,
+                Y,-3
+            )
+    end
+
+    SetTargetColor(
+        Color3.fromHSV(
+            CurrentHue,
+            CurrentSaturation,
+            CurrentValue
+        )
+    )
+
+    if SVFrame then
+
+        SVFrame.BackgroundColor3 =
+            Color3.fromHSV(
+                CurrentHue,
+                1,
+                1
+            )
+    end
+end
+
+-- =========================================================
+-- PICKER INPUT
+-- =========================================================
+
+local function ConnectPickerObject(
+    Object,
+    Callback
+)
+
+    Object.InputBegan:Connect(
+        function(Input)
+
+            local Valid =
+                Input.UserInputType ==
+                    Enum.UserInputType.MouseButton1
+                or
+                Input.UserInputType ==
+                    Enum.UserInputType.Touch
+
+            if not Valid then
+                return
+            end
+
+            local function Update(InputObject)
+
+                if not ColorPicker
+                    or not ColorPicker.Visible then
+
+                    return
+                end
+
+                local Position =
+                    Object.AbsolutePosition
+
+                local Size =
+                    Object.AbsoluteSize
+
+                if Size.X <= 0
+                    or Size.Y <= 0 then
+
+                    return
+                end
+
+                Callback(
+                    InputObject,
+                    Position,
+                    Size
+                )
+            end
+
+            Update(Input)
+
+            StopPicker()
+
+            PickerConnection =
+                UserInputService.InputChanged:Connect(
+                    function(Move)
+
+                        local ValidMove =
+                            Move.UserInputType ==
+                                Enum.UserInputType.MouseMovement
+                            or
+                            Move.UserInputType ==
+                                Enum.UserInputType.Touch
+
+                        if ValidMove then
+                            Update(Move)
+                        end
+                    end
+                )
+        end
+    )
+end
+
+-- =========================================================
+-- OPEN COLOR PICKER
+-- =========================================================
+
+local function OpenColorPicker(Target)
+
+    if not ColorPicker then
+        return
+    end
+
+    StopPicker()
+
+    ColorTarget = Target
+
+    local Color =
+        GetTargetColor(Target)
+
+    local H,S,V =
+        Color3.toHSV(Color)
+
+    CurrentHue = H
+    CurrentSaturation = S
+    CurrentValue = V
+
+    if ColorPickerTitle then
+
+        ColorPickerTitle.Text =
+            "MÀU " ..
+            string.upper(Target)
+    end
+
+    if ColorPreview then
+        ColorPreview.BackgroundColor3 =
+            Color
+    end
+
+    if HexBox then
+        HexBox.Text =
+            ColorToHex(Color)
+    end
+
+    if SVFrame then
+
+        SVFrame.BackgroundColor3 =
+            Color3.fromHSV(
+                H,
+                1,
+                1
+            )
+    end
+
+    if SVMarker then
+
+        SVMarker.Position =
+            UDim2.new(
+                S,0,
+                1-V,0
+            )
+    end
+
+    if HueMarker then
+
+        HueMarker.Position =
+            UDim2.new(
+                0,-3,
+                1-H,-3
+            )
+    end
+
+    ColorPicker.Visible = true
+end
+
+-- =========================================================
+-- CREATE COLOR PICKER
+-- =========================================================
+
+local function CreateColorPicker()
+
+    if ColorPicker then
+        return
+    end
+
+    ColorPicker =
+        Instance.new("Frame")
+
+    ColorPicker.Name =
+        "ColorPicker"
+
+    ColorPicker.Parent =
+        ScreenGui
+
+    ColorPicker.Size =
+        UDim2.new(
+            0,230,
+            0,310
+        )
+
+    ColorPicker.Position =
+        UDim2.new(
+            0.5,-115,
+            0.5,-155
+        )
+
+    ColorPicker.BackgroundColor3 =
+        Color3.fromRGB(
+            20,12,35
+        )
+
+    ColorPicker.BorderSizePixel = 0
+    ColorPicker.Visible = false
+    ColorPicker.ZIndex = 100
+
+    local Corner =
+        Instance.new("UICorner")
+
+    Corner.Parent =
+        ColorPicker
+
+    Corner.CornerRadius =
+        UDim.new(0,14)
+
+    local Stroke =
+        Instance.new("UIStroke")
+
+    Stroke.Parent =
+        ColorPicker
+
+    Stroke.Color =
+        Color3.fromRGB(
+            170,90,255
+        )
+
+    Stroke.Thickness = 1.5
+
+    -- TITLE
+
+    ColorPickerTitle =
+        Instance.new("TextLabel")
+
+    ColorPickerTitle.Parent =
+        ColorPicker
+
+    ColorPickerTitle.Size =
+        UDim2.new(
+            1,-50,
+            0,38
+        )
+
+    ColorPickerTitle.Position =
+        UDim2.new(
+            0,12,
+            0,5
+        )
+
+    ColorPickerTitle.BackgroundTransparency = 1
+    ColorPickerTitle.Text = "MÀU"
+
+    ColorPickerTitle.TextColor3 =
+        Color3.fromRGB(
+            245,230,255
+        )
+
+    ColorPickerTitle.TextSize = 14
+    ColorPickerTitle.Font =
+        Enum.Font.GothamBold
+
+    ColorPickerTitle.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    ColorPickerTitle.ZIndex = 102
+
+    -- CLOSE
+
+    ClosePicker =
+        Instance.new("TextButton")
+
+    ClosePicker.Parent =
+        ColorPicker
+
+    ClosePicker.Size =
+        UDim2.new(
+            0,28,
+            0,28
+        )
+
+    ClosePicker.Position =
+        UDim2.new(
+            1,-35,
+            0,8
+        )
+
+    ClosePicker.BackgroundColor3 =
+        Color3.fromRGB(
+            70,35,100
+        )
+
+    ClosePicker.Text = "X"
+
+    ClosePicker.TextColor3 =
+        Color3.fromRGB(
+            255,230,255
+        )
+
+    ClosePicker.TextSize = 16
+    ClosePicker.Font =
+        Enum.Font.GothamBold
+
+    ClosePicker.ZIndex = 103
+
+    local CloseCorner =
+        Instance.new("UICorner")
+
+    CloseCorner.Parent =
+        ClosePicker
+
+    CloseCorner.CornerRadius =
+        UDim.new(1,0)
+
+    ClosePicker.Activated:Connect(
+        function()
+
+            StopPicker()
+
+            ColorPicker.Visible = false
+            ColorTarget = nil
+        end
+    )
+
+    -- SV
+
+    SVFrame =
+        Instance.new("Frame")
+
+    SVFrame.Parent =
+        ColorPicker
+
+    SVFrame.Size =
+        UDim2.new(
+            0,180,
+            0,180
+        )
+
+    SVFrame.Position =
+        UDim2.new(
+            0,15,
+            0,48
+        )
+
+    SVFrame.BackgroundColor3 =
+        Color3.fromHSV(
+            0,1,1
+        )
+
+    SVFrame.BorderSizePixel = 0
+    SVFrame.ZIndex = 101
+
+    local SVCorner =
+        Instance.new("UICorner")
+
+    SVCorner.Parent =
+        SVFrame
+
+    SVCorner.CornerRadius =
+        UDim.new(0,8)
+
+    local White =
+        Instance.new("Frame")
+
+    White.Parent =
+        SVFrame
+
+    White.Size =
+        UDim2.new(1,0,1,0)
+
+    White.BackgroundColor3 =
+        Color3.fromRGB(
+            255,255,255
+        )
+
+    White.BackgroundTransparency = 0
+    White.BorderSizePixel = 0
+    White.ZIndex = 102
+
+    local WhiteGradient =
+        Instance.new("UIGradient")
+
+    WhiteGradient.Parent =
+        White
+
+    WhiteGradient.Transparency =
+        NumberSequence.new({
+            NumberSequenceKeypoint.new(0,0),
+            NumberSequenceKeypoint.new(1,1)
+        })
+
+    local WhiteCorner =
+        Instance.new("UICorner")
+
+    WhiteCorner.Parent =
+        White
+
+    WhiteCorner.CornerRadius =
+        UDim.new(0,8)
+
+    local Black =
+        Instance.new("Frame")
+
+    Black.Parent =
+        SVFrame
+
+    Black.Size =
+        UDim2.new(1,0,1,0)
+
+    Black.BackgroundColor3 =
+        Color3.fromRGB(
+            0,0,0
+        )
+
+    Black.BorderSizePixel = 0
+    Black.ZIndex = 103
+
+    local BlackGradient =
+        Instance.new("UIGradient")
+
+    BlackGradient.Parent =
+        Black
+
+    BlackGradient.Transparency =
+        NumberSequence.new({
+            NumberSequenceKeypoint.new(0,1),
+            NumberSequenceKeypoint.new(1,0)
+        })
+
+    BlackGradient.Rotation = 90
+
+    local BlackCorner =
+        Instance.new("UICorner")
+
+    BlackCorner.Parent =
+        Black
+
+    BlackCorner.CornerRadius =
+        UDim.new(0,8)
+
+    local SVInput =
+        Instance.new("TextButton")
+
+    SVInput.Parent =
+        SVFrame
+
+    SVInput.Size =
+        UDim2.new(1,0,1,0)
+
+    SVInput.BackgroundTransparency = 1
+    SVInput.Text = ""
+    SVInput.AutoButtonColor = false
+    SVInput.ZIndex = 104
+
+    SVMarker =
+        Instance.new("Frame")
+
+    SVMarker.Parent =
+        SVFrame
+
+    SVMarker.Size =
+        UDim2.new(
+            0,10,
+            0,10
+        )
+
+    SVMarker.AnchorPoint =
+        Vector2.new(
+            0.5,0.5
+        )
+
+    SVMarker.BackgroundColor3 =
+        Color3.fromRGB(
+            255,255,255
+        )
+
+    SVMarker.BorderSizePixel = 0
+    SVMarker.ZIndex = 105
+
+    local MarkerCorner =
+        Instance.new("UICorner")
+
+    MarkerCorner.Parent =
+        SVMarker
+
+    MarkerCorner.CornerRadius =
+        UDim.new(1,0)
+
+    local MarkerStroke =
+        Instance.new("UIStroke")
+
+    MarkerStroke.Parent =
+        SVMarker
+
+    MarkerStroke.Color =
+        Color3.fromRGB(
+            0,0,0
+        )
+
+    MarkerStroke.Thickness = 1
+
+    -- HUE
+
+    HueFrame =
+        Instance.new("Frame")
+
+    HueFrame.Parent =
+        ColorPicker
+
+    HueFrame.Size =
+        UDim2.new(
+            0,22,
+            0,180
+        )
+
+    HueFrame.Position =
+        UDim2.new(
+            0,198,
+            0,48
+        )
+
+    HueFrame.BorderSizePixel = 0
+    HueFrame.ZIndex = 101
+
+    local HueCorner =
+        Instance.new("UICorner")
+
+    HueCorner.Parent =
+        HueFrame
+
+    HueCorner.CornerRadius =
+        UDim.new(0,8)
+
+    local HueGradient =
+        Instance.new("UIGradient")
+
+    HueGradient.Parent =
+        HueFrame
+
+    HueGradient.Color =
+        ColorSequence.new({
+            ColorSequenceKeypoint.new(
+                0,
+                Color3.fromRGB(255,0,0)
+            ),
+            ColorSequenceKeypoint.new(
+                0.16,
+                Color3.fromRGB(255,255,0)
+            ),
+            ColorSequenceKeypoint.new(
+                0.33,
+                Color3.fromRGB(0,255,0)
+            ),
+            ColorSequenceKeypoint.new(
+                0.50,
+                Color3.fromRGB(0,255,255)
+            ),
+            ColorSequenceKeypoint.new(
+                0.66,
+                Color3.fromRGB(0,0,255)
+            ),
+            ColorSequenceKeypoint.new(
+                0.83,
+                Color3.fromRGB(255,0,255)
+            ),
+            ColorSequenceKeypoint.new(
+                1,
+                Color3.fromRGB(255,0,0)
+            )
+        })
+
+    local HueInput =
+        Instance.new("TextButton")
+
+    HueInput.Parent =
+        HueFrame
+
+    HueInput.Size =
+        UDim2.new(1,0,1,0)
+
+    HueInput.BackgroundTransparency = 1
+    HueInput.Text = ""
+    HueInput.AutoButtonColor = false
+    HueInput.ZIndex = 104
+
+    HueMarker =
+        Instance.new("Frame")
+
+    HueMarker.Parent =
+        HueFrame
+
+    HueMarker.Size =
+        UDim2.new(
+            1,6,
+            0,6
+        )
+
+    HueMarker.Position =
+        UDim2.new(
+            0,-3,
+            0,-3
+        )
+
+    HueMarker.BackgroundColor3 =
+        Color3.fromRGB(
+            255,255,255
+        )
+
+    HueMarker.BorderSizePixel = 0
+    HueMarker.ZIndex = 105
+
+    local HueMarkerCorner =
+        Instance.new("UICorner")
+
+    HueMarkerCorner.Parent =
+        HueMarker
+
+    HueMarkerCorner.CornerRadius =
+        UDim.new(1,0)
+
+    -- SV INPUT
+
+    ConnectPickerObject(
+        SVInput,
+        function(Input,Position,Size)
+
+            local X =
+                (
+                    Input.Position.X -
+                    Position.X
+                ) / Size.X
+
+            local Y =
+                (
+                    Input.Position.Y -
+                    Position.Y
+                ) / Size.Y
+
+            UpdateSV(X,Y)
+        end
+    )
+
+    -- HUE INPUT
+
+    ConnectPickerObject(
+        HueInput,
+        function(Input,Position,Size)
+
+            local Y =
+                (
+                    Input.Position.Y -
+                    Position.Y
+                ) / Size.Y
+
+            UpdateHue(Y)
+        end
+    )
+
+    -- PREVIEW
+
+    ColorPreview =
+        Instance.new("Frame")
+
+    ColorPreview.Parent =
+        ColorPicker
+
+    ColorPreview.Size =
+        UDim2.new(
+            0,45,
+            0,28
+        )
+
+    ColorPreview.Position =
+        UDim2.new(
+            0,15,
+            0,240
+        )
+
+    ColorPreview.BackgroundColor3 =
+        Color3.fromRGB(
+            255,255,255
+        )
+
+    ColorPreview.BorderSizePixel = 0
+    ColorPreview.ZIndex = 102
+
+    local PreviewCorner =
+        Instance.new("UICorner")
+
+    PreviewCorner.Parent =
+        ColorPreview
+
+    PreviewCorner.CornerRadius =
+        UDim.new(0,7)
+
+    -- HEX
+
+    HexBox =
+        Instance.new("TextBox")
+
+    HexBox.Parent =
+        ColorPicker
+
+    HexBox.Size =
+        UDim2.new(
+            0,105,
+            0,28
+        )
+
+    HexBox.Position =
+        UDim2.new(
+            0,68,
+            0,240
+        )
+
+    HexBox.BackgroundColor3 =
+        Color3.fromRGB(
+            35,22,55
+        )
+
+    HexBox.TextColor3 =
+        Color3.fromRGB(
+            240,225,255
+        )
+
+    HexBox.PlaceholderText =
+        "#FFFFFF"
+
+    HexBox.PlaceholderColor3 =
+        Color3.fromRGB(
+            150,120,180
+        )
+
+    HexBox.TextSize = 12
+    HexBox.Font =
+        Enum.Font.Gotham
+
+    HexBox.ClearTextOnFocus = false
+    HexBox.ZIndex = 102
+
+    local HexCorner =
+        Instance.new("UICorner")
+
+    HexCorner.Parent =
+        HexBox
+
+    HexCorner.CornerRadius =
+        UDim.new(0,7)
+
+    HexBox.FocusLost:Connect(
+        function()
+
+            if not ColorTarget then
+                return
+            end
+
+            local Color =
+                HexToColor(
+                    HexBox.Text
+                )
+
+            if not Color then
+
+                HexBox.Text =
+                    ColorToHex(
+                        GetTargetColor(
+                            ColorTarget
+                        )
+                    )
+
+                return
+            end
+
+            local H,S,V =
+                Color3.toHSV(Color)
+
+            CurrentHue = H
+            CurrentSaturation = S
+            CurrentValue = V
+
+            if SVFrame then
+
+                SVFrame.BackgroundColor3 =
+                    Color3.fromHSV(
+                        H,1,1
+                    )
+            end
+
+            if SVMarker then
+
+                SVMarker.Position =
+                    UDim2.new(
+                        S,0,
+                        1-V,0
+                    )
+            end
+
+            if HueMarker then
+
+                HueMarker.Position =
+                    UDim2.new(
+                        0,-3,
+                        1-H,-3
+                    )
+            end
+
+            SetTargetColor(Color)
+        end
+    )
+end
+
+-- =========================================================
+-- INPUT
+-- =========================================================
+
+local function MakeInput(
+    Y,
+    Placeholder,
+    Icon
+)
+
+    local Frame =
+        Instance.new("Frame")
+
+    Frame.Parent =
+        MainFrame
+
+    Frame.Size =
+        UDim2.new(
+            0.88,0,
+            0,35
+        )
+
+    Frame.Position =
+        UDim2.new(
+            0.06,0,
+            0,Y
+        )
+
+    Frame.BackgroundColor3 =
+        Color3.fromRGB(
+            35,22,55
+        )
+
+    Frame.BackgroundTransparency = 0.12
+    Frame.BorderSizePixel = 0
+    Frame.ZIndex = 4
+
+    local Corner =
+        Instance.new("UICorner")
+
+    Corner.Parent =
+        Frame
+
+    Corner.CornerRadius =
+        UDim.new(0,9)
+
+    local Stroke =
+        Instance.new("UIStroke")
+
+    Stroke.Parent =
+        Frame
+
+    Stroke.Color =
+        Color3.fromRGB(
+            125,70,190
+        )
+
+    Stroke.Thickness = 1
+    Stroke.Transparency = 0.5
+
+    local IconLabel =
+        Instance.new("TextLabel")
+
+    IconLabel.Parent =
+        Frame
+
+    IconLabel.Size =
+        UDim2.new(
+            0,27,
+            1,0
+        )
+
+    IconLabel.Position =
+        UDim2.new(
+            0,4,
+            0,0
+        )
+
+    IconLabel.BackgroundTransparency = 1
+    IconLabel.Text = Icon
+
+    IconLabel.TextColor3 =
+        Color3.fromRGB(
+            190,125,255
+        )
+
+    IconLabel.TextSize = 15
+    IconLabel.Font =
+        Enum.Font.GothamBold
+
+    IconLabel.ZIndex = 5
+
+    local Box =
+        Instance.new("TextBox")
+
+    Box.Parent =
+        Frame
+
+    Box.Size =
+        UDim2.new(
+            1,-35,
+            1,0
+        )
+
+    Box.Position =
+        UDim2.new(
+            0,32,
+            0,0
+        )
+
+    Box.BackgroundTransparency = 1
+
+    Box.TextColor3 =
+        Color3.fromRGB(
+            240,225,255
+        )
+
+    Box.PlaceholderText =
+        Placeholder
+
+    Box.PlaceholderColor3 =
+        Color3.fromRGB(
+            145,120,175
+        )
+
+    Box.Text = ""
+    Box.TextSize = 13
+    Box.Font =
+        Enum.Font.Gotham
+
+    Box.ClearTextOnFocus = false
+    Box.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    Box.ZIndex = 5
+
+    return Box
+end
+
+-- =========================================================
+-- COLOR BUTTON
+-- =========================================================
+
+local function MakeColorButton(
+    Y,
+    Color,
+    Target
+)
+
+    local Button =
+        Instance.new("TextButton")
+
+    Button.Parent =
+        MainFrame
+
+    Button.Size =
+        UDim2.new(
+            0,28,
+            0,28
+        )
+
+    Button.Position =
+        UDim2.new(
+            1,-38,
+            0,Y + 4
+        )
+
+    Button.BackgroundColor3 =
+        Color
+
+    Button.BorderSizePixel = 0
+    Button.Text = ""
+    Button.ZIndex = 8
+
+    local Corner =
+        Instance.new("UICorner")
+
+    Corner.Parent =
+        Button
+
+    Corner.CornerRadius =
+        UDim.new(1,0)
+
+    local Stroke =
+        Instance.new("UIStroke")
+
+    Stroke.Parent =
+        Button
+
+    Stroke.Color =
+        Color3.fromRGB(
+            255,255,255
+        )
+
+    Stroke.Transparency = 0.35
+    Stroke.Thickness = 1
+
+    Button.Activated:Connect(
+        function()
+            OpenColorPicker(Target)
+        end
+    )
+
+    return Button
+end
+
+-- =========================================================
+-- DRAG
+-- =========================================================
+
+local function MakeDraggable(
+    Frame,
+    DragObject
+)
+
+    DragObject.InputBegan:Connect(
+        function(Input)
+
+            local Valid =
+                Input.UserInputType ==
+                    Enum.UserInputType.MouseButton1
+                or
+                Input.UserInputType ==
+                    Enum.UserInputType.Touch
+
+            if not Valid then
+                return
+            end
+
+            local Dragging = true
+
+            local DragStart =
+                Input.Position
+
+            local StartPosition =
+                Frame.Position
+
+            if MainDragConnection then
+
+                pcall(function()
+                    MainDragConnection:Disconnect()
+                end)
+
+                MainDragConnection = nil
+            end
+
+            MainDragConnection =
+                UserInputService.InputChanged:Connect(
+                    function(Move)
+
+                        if not Dragging then
+                            return
+                        end
+
+                        local ValidMove =
+                            Move.UserInputType ==
+                                Enum.UserInputType.MouseMovement
+                            or
+                            Move.UserInputType ==
+                                Enum.UserInputType.Touch
+
+                        if not ValidMove then
+                            return
+                        end
+
+                        local Delta =
+                            Move.Position -
+                            DragStart
+
+                        Frame.Position =
+                            UDim2.new(
+                                StartPosition.X.Scale,
+                                StartPosition.X.Offset +
+                                    Delta.X,
+
+                                StartPosition.Y.Scale,
+                                StartPosition.Y.Offset +
+                                    Delta.Y
+                            )
+                    end
+                )
+
+            Input.Changed:Connect(
+                function()
+
+                    if Input.UserInputState ==
+                        Enum.UserInputState.End then
+
+                        Dragging = false
+
+                        if MainDragConnection then
+
+                            pcall(function()
+                                MainDragConnection:Disconnect()
+                            end)
+
+                            MainDragConnection = nil
+                        end
+                    end
+                end
+            )
+        end
+    )
+end
+
+-- =========================================================
+-- APPLY FROM MENU
+-- =========================================================
+
+local function ApplyFromMenu()
+
+    if Applying then
+        return
+    end
+
+    Applying = true
+
+    -- =====================================================
+    -- SAVE INPUT
+    -- =====================================================
+
+    local UserValue =
+        GetInputText(BoxUser)
+
+    if UserValue ~= "" then
+        customUsername = UserValue
+    end
+
+    local RankValue =
+        GetInputText(BoxRank)
+
+    if RankValue ~= "" then
+        customDisplay = RankValue
+    end
+
+    local LevelValue =
+        GetInputText(BoxLevel)
+
+    if LevelValue ~= "" then
+        customLevel = LevelValue
+    end
+
+    local NameValue =
+        GetInputText(BoxName)
+
+    if NameValue ~= "" then
+        customName = NameValue
+    end
+
+    -- =====================================================
+    -- FIND UI
+    -- =====================================================
+
+    if not UIReady then
+        UpdateReferences()
+    end
+
+    if not UIReady then
+
+        SetStatus(
+            "Đang chờ Rank UI...",
+            Color3.fromRGB(
+                255,150,80
+            )
+        )
+
+        Applying = false
+        return
+    end
+
+    -- =====================================================
+    -- APPLY NORMAL STATE FIRST
+    -- =====================================================
+    -- Dù Rainbow đang ON cũng phải Apply text/màu chuẩn
+    -- trước. Sau đó Rainbow chỉ đổi màu.
+
+    local Success =
+        ApplyNormal()
+
+    if not Success then
+
+        SetStatus(
+            "Không tìm thấy Rank UI",
+            Color3.fromRGB(
+                255,100,100
+            )
+        )
+
+        Applying = false
+        return
+    end
+
+    -- =====================================================
+    -- IF RAINBOW ON
+    -- =====================================================
+
+    if RainbowEnabled then
+
+        ApplyRainbow(
+            GetRainbowColor()
+        )
+    end
+
+    SetStatus(
+        "Đã áp dụng",
+        Color3.fromRGB(
+            80,255,150
+        )
+    )
+
+    if ApplyBtn then
+
+        ApplyBtn.Text =
+            "ĐÃ ÁP DỤNG"
+
+        task.delay(
+            0.8,
+            function()
+
+                if ApplyBtn then
+                    ApplyBtn.Text =
+                        "ÁP DỤNG"
+                end
+
+                if StatusBar then
+
+                    SetStatus(
+                        "Sẵn sàng",
+                        Color3.fromRGB(
+                            180,130,255
+                        )
+                    )
+                end
+            end
+        )
+    end
+
+    Applying = false
+end
+
+-- =========================================================
+-- HIDE
+-- =========================================================
+
+local function HideInfoUI()
+
+    if not MainFrame then
+        return
+    end
+
+    InfoUIVisible = false
+
+    StopPicker()
+
+    if ColorPicker then
+        ColorPicker.Visible = false
+    end
+
+    local Tween =
+        TweenService:Create(
+            MainFrame,
+            TweenInfo.new(
+                0.22,
+                Enum.EasingStyle.Quad,
+                Enum.EasingDirection.In
+            ),
+            {
+                Size =
+                    UDim2.new(
+                        0,0,
+                        0,0
+                    )
+            }
+        )
+
+    Tween:Play()
+
+    task.spawn(
+        function()
+
+            pcall(function()
+                Tween.Completed:Wait()
+            end)
+
+            if not InfoUIVisible then
+
+                if MainFrame then
+                    MainFrame.Visible = false
+                end
+
+                if ScreenGui then
+                    ScreenGui.Enabled = false
+                end
+            end
+        end
+    )
+end
+
+-- =========================================================
+-- CREATE UI
+-- =========================================================
+
+local function CreateInfoUI()
+
+    if UICreated
+        and MainFrame
+        and ScreenGui then
+
+        ScreenGui.Enabled = true
+        MainFrame.Visible = true
+
+        InfoUIVisible = true
+
+        if ColorPicker then
+            ColorPicker.Visible = false
+        end
+
+        MainFrame.Size =
+            UDim2.new(
+                0,0,
+                0,0
+            )
+
+        TweenService:Create(
+            MainFrame,
+            TweenInfo.new(
+                0.35,
+                Enum.EasingStyle.Back,
+                Enum.EasingDirection.Out
+            ),
+            {
+                Size =
+                    UDim2.new(
+                        0,280,
+                        0,340
+                    )
+            }
+        ):Play()
+
+        return
+    end
+
+    local PlayerGui =
+        LocalPlayer:FindFirstChild(
+            "PlayerGui"
+        )
+
+    if not PlayerGui then
+
+        PlayerGui =
+            LocalPlayer:WaitForChild(
+                "PlayerGui",
+                10
+            )
+    end
+
+    if not PlayerGui then
+        return
+    end
+
+    -- =====================================================
+    -- SCREEN GUI
+    -- =====================================================
+
+    ScreenGui =
+        Instance.new("ScreenGui")
+
+    ScreenGui.Name =
+        "VNDHubInfoUI"
+
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.IgnoreGuiInset = true
+
+    ScreenGui.ZIndexBehavior =
+        Enum.ZIndexBehavior.Sibling
+
+    ScreenGui.DisplayOrder = 999999
+
+    ScreenGui.Parent =
+        PlayerGui
+
+    -- =====================================================
+    -- MAIN
+    -- =====================================================
+
+    MainFrame =
+        Instance.new("Frame")
+
+    MainFrame.Parent =
+        ScreenGui
+
+    MainFrame.Size =
+        UDim2.new(
+            0,280,
+            0,340
+        )
+
+    MainFrame.Position =
+        UDim2.new(
+            0.5,-140,
+            0.4,-170
+        )
+
+    MainFrame.BackgroundColor3 =
+        Color3.fromRGB(
+            15,10,30
+        )
+
+    MainFrame.BackgroundTransparency = 0.04
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Active = true
+    MainFrame.ZIndex = 2
+
+    local MainCorner =
+        Instance.new("UICorner")
+
+    MainCorner.Parent =
+        MainFrame
+
+    MainCorner.CornerRadius =
+        UDim.new(0,18)
+
+    local MainStroke =
+        Instance.new("UIStroke")
+
+    MainStroke.Parent =
+        MainFrame
+
+    MainStroke.Color =
+        Color3.fromRGB(
+            170,90,255
+        )
+
+    MainStroke.Thickness = 1.5
+
+    -- =====================================================
+    -- HEADER
+    -- =====================================================
+
+    Header =
+        Instance.new("Frame")
+
+    Header.Parent =
+        MainFrame
+
+    Header.Size =
+        UDim2.new(
+            1,0,
+            0,44
+        )
+
+    Header.BackgroundColor3 =
+        Color3.fromRGB(
+            100,35,180
+        )
+
+    Header.BorderSizePixel = 0
+    Header.ZIndex = 4
+
+    local HeaderCorner =
+        Instance.new("UICorner")
+
+    HeaderCorner.Parent =
+        Header
+
+    HeaderCorner.CornerRadius =
+        UDim.new(0,18)
+
+    local HeaderGradient =
+        Instance.new("UIGradient")
+
+    HeaderGradient.Parent =
+        Header
+
+    HeaderGradient.Color =
+        ColorSequence.new({
+            ColorSequenceKeypoint.new(
+                0,
+                Color3.fromRGB(
+                    135,55,230
+                )
+            ),
+            ColorSequenceKeypoint.new(
+                1,
+                Color3.fromRGB(
+                    70,25,140
+                )
+            )
+        })
+
+    -- =====================================================
+    -- TITLE
+    -- =====================================================
+
+    local Title =
+        Instance.new("TextLabel")
+
+    Title.Parent =
+        Header
+
+    Title.Size =
+        UDim2.new(
+            0.7,0,
+            1,0
+        )
+
+    Title.Position =
+        UDim2.new(
+            0,15,
+            0,0
+        )
+
+    Title.BackgroundTransparency = 1
+    Title.Text = "INFO UI"
+
+    Title.TextColor3 =
+        Color3.fromRGB(
+            255,245,255
+        )
+
+    Title.TextSize = 16
+    Title.Font =
+        Enum.Font.GothamBold
+
+    Title.TextXAlignment =
+        Enum.TextXAlignment.Left
+
+    Title.ZIndex = 5
+
+    -- =====================================================
+    -- CLOSE
+    -- =====================================================
+
+    local CloseButton =
+        Instance.new("TextButton")
+
+    CloseButton.Parent =
+        Header
+
+    CloseButton.Size =
+        UDim2.new(
+            0,32,
+            0,32
+        )
+
+    CloseButton.Position =
+        UDim2.new(
+            1,-39,
+            0.5,-16
+        )
+
+    CloseButton.BackgroundColor3 =
+        Color3.fromRGB(
+            255,255,255
+        )
+
+    CloseButton.BackgroundTransparency = 0.85
+
+    CloseButton.Text = "X"
+
+    CloseButton.TextColor3 =
+        Color3.fromRGB(
+            245,220,255
+        )
+
+    CloseButton.TextSize = 17
+    CloseButton.Font =
+        Enum.Font.GothamBold
+
+    CloseButton.ZIndex = 8
+
+    local CloseCorner =
+        Instance.new("UICorner")
+
+    CloseCorner.Parent =
+        CloseButton
+
+    CloseCorner.CornerRadius =
+        UDim.new(1,0)
+
+    CloseButton.Activated:Connect(
+        function()
+
+            _G.InfoUIState = false
+
+            HideInfoUI()
+        end
+    )
+
+    -- =====================================================
+    -- INPUTS
+    -- =====================================================
+
+    BoxUser =
+        MakeInput(
+            55,
+            "Tên hiển thị",
+            "U"
+        )
+
+    BoxRank =
+        MakeInput(
+            97,
+            "Rank / Danh hiệu",
+            "R"
+        )
+
+    BoxLevel =
+        MakeInput(
+            139,
+            "Level (số)",
+            "L"
+        )
+
+    BoxName =
+        MakeInput(
+            181,
+            "Tên trong Level",
+            "N"
+        )
+
+    -- =====================================================
+    -- COLOR BUTTONS
+    -- =====================================================
+
+    UserColorBtn =
+        MakeColorButton(
+            55,
+            UsernameColor,
+            "Username"
+        )
+
+    RankColorBtn =
+        MakeColorButton(
+            97,
+            RankColor,
+            "Rank"
+        )
+
+    LevelColorBtn =
+        MakeColorButton(
+            139,
+            LevelColor,
+            "Level"
+        )
+
+    NameColorBtn =
+        MakeColorButton(
+            181,
+            NameColor,
+            "Name"
+        )
+
+    -- =====================================================
+    -- RAINBOW
+    -- =====================================================
+
+    RainbowBtn =
+        Instance.new("TextButton")
+
+    RainbowBtn.Parent =
+        MainFrame
+
+    RainbowBtn.Size =
+        UDim2.new(
+            0.38,0,
+            0,32
+        )
+
+    RainbowBtn.Position =
+        UDim2.new(
+            0.06,0,
+            0,225
+        )
+
+    RainbowBtn.BackgroundColor3 =
+        Color3.fromRGB(
+            55,35,75
+        )
+
+    RainbowBtn.Text =
+        "Rainbow: OFF"
+
+    RainbowBtn.TextColor3 =
+        Color3.fromRGB(
+            210,180,240
+        )
+
+    RainbowBtn.TextSize = 11
+    RainbowBtn.Font =
+        Enum.Font.GothamBold
+
+    RainbowBtn.ZIndex = 8
+
+    local RainbowCorner =
+        Instance.new("UICorner")
+
+    RainbowCorner.Parent =
+        RainbowBtn
+
+    RainbowCorner.CornerRadius =
+        UDim.new(0,9)
+
+    RainbowBtn.Activated:Connect(
+        function()
+
+            RainbowEnabled =
+                not RainbowEnabled
+
+            if RainbowEnabled then
+
+                -- =========================================
+                -- ON
+                -- =========================================
+
+                RainbowBtn.Text =
+                    "Rainbow: ON"
+
+                RainbowBtn.BackgroundColor3 =
+                    Color3.fromRGB(
+                        125,55,210
+                    )
+
+                if not UIReady then
+                    UpdateReferences()
+                end
+
+                if UIReady then
+
+                    -- Chỉ chạy Rainbow trên state
+                    -- đã Apply trước đó.
+                    ApplyRainbow(
+                        GetRainbowColor()
+                    )
+
+                    SetStatus(
+                        "Rainbow đang chạy",
+                        Color3.fromRGB(
+                            230,180,255
+                        )
+                    )
+
+                else
+
+                    SetStatus(
+                        "Đang chờ Rank UI...",
+                        Color3.fromRGB(
+                            255,150,80
+                        )
+                    )
+                end
+
+            else
+
+                -- =========================================
+                -- OFF
+                -- =========================================
+
+                RainbowBtn.Text =
+                    "Rainbow: OFF"
+
+                RainbowBtn.BackgroundColor3 =
+                    Color3.fromRGB(
+                        55,35,75
+                    )
+
+                -- QUAN TRỌNG:
+                -- Khôi phục state của lần Apply.
+                if UIReady then
+                    RestoreNormalState()
+                end
+
+                SetStatus(
+                    "Đã tắt Rainbow",
+                    Color3.fromRGB(
+                        180,130,255
+                    )
+                )
+            end
+        end
+    )
+
+    -- =====================================================
+    -- APPLY
+    -- =====================================================
+
+    ApplyBtn =
+        Instance.new("TextButton")
+
+    ApplyBtn.Parent =
+        MainFrame
+
+    ApplyBtn.Size =
+        UDim2.new(
+            0.48,0,
+            0,32
+        )
+
+    ApplyBtn.Position =
+        UDim2.new(
+            0.46,0,
+            0,225
+        )
+
+    ApplyBtn.BackgroundColor3 =
+        Color3.fromRGB(
+            130,55,220
+        )
+
+    ApplyBtn.Text =
+        "ÁP DỤNG"
+
+    ApplyBtn.TextColor3 =
+        Color3.fromRGB(
+            255,245,255
+        )
+
+    ApplyBtn.TextSize = 12
+    ApplyBtn.Font =
+        Enum.Font.GothamBold
+
+    ApplyBtn.ZIndex = 8
+
+    local ApplyCorner =
+        Instance.new("UICorner")
+
+    ApplyCorner.Parent =
+        ApplyBtn
+
+    ApplyCorner.CornerRadius =
+        UDim.new(0,9)
+
+    ApplyBtn.Activated:Connect(
+        ApplyFromMenu
+    )
+
+    -- =====================================================
+    -- STATUS
+    -- =====================================================
+
+    StatusBar =
+        Instance.new("TextLabel")
+
+    StatusBar.Parent =
+        MainFrame
+
+    StatusBar.Size =
+        UDim2.new(
+            1,0,
+            0,18
+        )
+
+    StatusBar.Position =
+        UDim2.new(
+            0,0,
+            1,-22
+        )
+
+    StatusBar.BackgroundTransparency = 1
+    StatusBar.Text = "Sẵn sàng"
+
+    StatusBar.TextColor3 =
+        Color3.fromRGB(
+            180,130,255
+        )
+
+    StatusBar.TextSize = 10
+    StatusBar.Font =
+        Enum.Font.Gotham
+
+    StatusBar.ZIndex = 8
+
+    -- =====================================================
+    -- ENTER
+    -- =====================================================
+
+    BoxUser.FocusLost:Connect(
+        function(EnterPressed)
+
+            if EnterPressed then
+                ApplyFromMenu()
+            end
+        end
+    )
+
+    BoxRank.FocusLost:Connect(
+        function(EnterPressed)
+
+            if EnterPressed then
+                ApplyFromMenu()
+            end
+        end
+    )
+
+    BoxLevel.FocusLost:Connect(
+        function(EnterPressed)
+
+            if EnterPressed then
+                ApplyFromMenu()
+            end
+        end
+    )
+
+    BoxName.FocusLost:Connect(
+        function(EnterPressed)
+
+            if EnterPressed then
+                ApplyFromMenu()
+            end
+        end
+    )
+
+    -- =====================================================
+    -- COLOR PICKER
+    -- =====================================================
+
+    CreateColorPicker()
+
+    -- =====================================================
+    -- DRAG
+    -- =====================================================
+
+    MakeDraggable(
+        MainFrame,
+        Header
+    )
+
+    -- =====================================================
+    -- CREATED
+    -- =====================================================
+
+    UICreated = true
+    InfoUIVisible = true
+
+    MainFrame.Size =
+        UDim2.new(
+            0,0,
+            0,0
+        )
+
+    MainFrame.Visible = true
+    ScreenGui.Enabled = true
+
+    TweenService:Create(
+        MainFrame,
+        TweenInfo.new(
+            0.4,
+            Enum.EasingStyle.Back,
+            Enum.EasingDirection.Out
+        ),
+        {
+            Size =
+                UDim2.new(
+                    0,280,
+                    0,340
+                )
+        }
+    ):Play()
+end
+
+-- =========================================================
+-- GLOBAL SHOW
+-- =========================================================
+
+_G.ShowInfoUI = function()
+
+    _G.InfoUIState = true
+
+    pcall(function()
+        CreateInfoUI()
+    end)
+end
+
+-- =========================================================
+-- GLOBAL HIDE
+-- =========================================================
+
+_G.HideInfoUI = function()
+
+    _G.InfoUIState = false
+
+    pcall(function()
+        HideInfoUI()
+    end)
+end
+
+-- =========================================================
+-- CHARACTER ADDED
+-- =========================================================
+
+LocalPlayer.CharacterAdded:Connect(
+    function(Character)
+
+        LastCharacter = Character
+        RankUIReference = nil
+
+        ClearReferences()
+
+        StableCount = 0
+
+        task.spawn(
+            function()
+
+                task.wait(1)
+
+                for _ = 1,35 do
+
+                    if LocalPlayer.Character
+                        ~= Character then
+
+                        return
+                    end
+
+                    if UpdateReferences() then
+                        break
+                    end
+
+                    task.wait(0.35)
+                end
+
+                -- KHÔNG AUTO APPLY
+            end
+        )
+    end
+)
+
+-- =========================================================
+-- CHARACTER REMOVING
+-- =========================================================
+
+LocalPlayer.CharacterRemoving:Connect(
+    function(Character)
+
+        if LastCharacter == Character then
+
+            UIReady = false
+            RankUIReference = nil
+
+            ClearReferences()
+
+            StableCount = 0
+        end
+    end
+)
+
+-- =========================================================
+-- AUTO RECONNECT
+-- ONLY FINDS UI
+-- DOES NOT CHANGE TEXT/COLOR
+-- =========================================================
+
+task.spawn(
+    function()
+
+        while true do
+
+            task.wait(0.75)
+
+            local Character =
+                LocalPlayer.Character
+
+            if Character then
+
+                if LastCharacter ~= Character then
+
+                    LastCharacter = Character
+                    RankUIReference = nil
+
+                    ClearReferences()
+
+                    StableCount = 0
+                end
+
+                if RankUIReference then
+
+                    if not IsLocalCharacterDescendant(
+                        RankUIReference
+                    ) then
+
+                        RankUIReference = nil
+                        ClearReferences()
+
+                        StableCount = 0
+                    end
+                end
+
+                if not UIReady then
+                    UpdateReferences()
+                end
+
+            else
+
+                UIReady = false
+            end
+        end
+    end
+)
+
+-- =========================================================
+-- RAINBOW LOOP
+-- ONLY CHANGES COLOR
+-- NEVER CHANGES TEXT
+-- =========================================================
+
+RunService.RenderStepped:Connect(
+    function()
+
+        if RainbowEnabled
+            and UIReady then
+
+            ApplyRainbow(
+                GetRainbowColor()
+            )
+        end
+    end
+)
+
+-- =========================================================
+-- INITIALIZE
+-- =========================================================
+
+task.spawn(
+    function()
+
+        local Character =
+            LocalPlayer.Character
+
+        if Character then
+            LastCharacter = Character
+        end
+
+        task.wait(1)
+
+        for _ = 1,30 do
+
+            if UpdateReferences() then
+                break
+            end
+
+            task.wait(0.35)
+        end
+
+        -- KHÔNG AUTO OPEN
+        -- KHÔNG AUTO APPLY
+
+        _G.InfoUIState = false
+    end
+)
+
+-- =========================================================
+-- END
+-- =========================================================
+
+------------------------------------------------
+-- TAB 1: Main 🏠
+------------------------------------------------
+local ProfileParagraph = Tabs.Main1:AddParagraph({
+    Title = "👤 THÔNG TIN TÀI KHOẢN",
+    Text = "Tên hiển thị: " .. tostring(player.DisplayName) .. "\nTên tài khoản: @" .. tostring(player.Name),
+    Image = "rbxassetid://126677255840605"
+})
+
+task.spawn(function()
+    pcall(function()
+        local userId = player.UserId
+        local avatarUrl, isReady = Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+        if isReady and avatarUrl then
+            ProfileParagraph:SetText("Tên hiển thị: " .. tostring(player.DisplayName) .. "\nTên tài khoản: @" .. tostring(player.Name))
+            if ProfileParagraph.Image then ProfileParagraph.Image = avatarUrl end
+        end
+    end)
+end)
+
+Tabs.Main1:AddButton({
+	Title = "💬 Zalo Hỗ Trợ: 0398342212",              
+	Callback = function() setclipboard("0398342212") Fluent:Notify({Title = "VND💵 System", Content = "Đã sao chép SĐT Zalo!", Duration = 3}) end
+})
+
+Tabs.Main1:AddButton({
+	Title = "🎬 TikTok Hỗ Trợ (Click để Sao Chép)",              
+	Callback = function() setclipboard("https://www.tiktok.com/@vndhub?_r=1&_t=ZS-995avk33oiA") Fluent:Notify({Title = "VND💵 System", Content = "Đã sao chép link TikTok!", Duration = 3}) end
+})
+
+Tabs.Main1:AddButton({
+	Title = "Sever discord",              
+	Callback = function() setclipboard("https://discord.gg/WsPhPcYKK2") Fluent:Notify({Title = "VND💵 System", Content = "Đã sao chép link sever!", Duration = 3}) end
+})
+
+------------------------------------------------
+-- TAB 2: Farm Level ⚔️
+------------------------------------------------
+Tabs.Main2:AddToggle("AutoFarmLevelToggle",{Title="Auto Farm NPC",Default=false,Callback=function(Value)_G.AutoFarmLevel=Value end})
+Tabs.Main2:AddSlider("NpcDistanceSlider",{Title="Khoảng cách",Min=10,Max=25,Default=18,Rounding=1,Callback=function(Value)_G.Settings.DashDist=Value end})
+Tabs.Main2:AddSlider("NpcSpeedSlider",{Title="Tốc độ Dash NPC",Min=1,Max=20,Default=5,Rounding=1,Increment=1,Callback=function(Value)_G.Settings.Speed=Value/100 end})
+Tabs.Main2:AddToggle("AutoLootToggle", { Title = "Auto Nhặt Đồ (Loot)", Default = false, Callback = function(Value) _G.AutoLootEnabled = Value end })
+Tabs.Main2:AddToggle("AutoFarmChuaToggle", { Title = "Auto Farm Ở Chùa", Default = false, Callback = function(Value) _G.AutoFarmChua = Value end })
+Tabs.Main2:AddToggle("AntiAFKToggle", { Title = "Kích Hoạt Anti-AFK", Default = false, Callback = function(Value) _G.AntiAFKEnabled = Value end })
+Tabs.Main2:AddButton({ Title = "admin", Callback = function() loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Infinite-Yield-43437"))() end })
+Tabs.Main2:AddButton({ Title = "vfly", Callback = function() loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-V-fly-20577"))() end })
+
+
+------------------------------------------------
+-- TAB 3: Farm Tiền 💵
+------------------------------------------------
+Tabs.Main3:AddToggle("AutoFarmBanhMiToggle", { Title = "Auto Farm Bánh Mì", Default = false, Callback = function(Value) _G.AutoFarmBanhMi = Value end })
+Tabs.Main3:AddToggle("AutoFarmBenhVienToggle", { Title = "Auto Farm Bệnh Viện", Default = false, Callback = function(Value) _G.AutoFarmBenhVien = Value end })
+Tabs.Main3:AddToggle("AutoFarmCaoSuToggle", { Title = "Auto Farm Cao Su", Default = false, Callback = function(Value) _G.AutoFarmCaoSu = Value end })
+Tabs.Main3:AddToggle("AutoFarmChotCongAnToggle", { Title = "Auto Farm Chốt Công An", Default = false, Callback = function(Value) _G.AutoFarmChotCongAn = Value end })
+
+------------------------------------------------
+-- TAB 4: Mua đồ 
+------------------------------------------------
+Tabs.Main4:AddDropdown("SelectItemDropdown", {
+    Title = "Chọn vũ khí",
+    Values = itemList,
+    Multi = false,
+    Default = nil,
+    Callback = function(Value)
+        _G.SelectedItem = Value
+    end
+})
+Tabs.Main4:AddDropdown("SelectVehicleDropdown", {
+    Title = "Chọn xe",
+    Values = vehicleList,
+    Multi = false,
+    Default = nil,
+    Callback = function(Value)
+        _G.SelectedVehicle = Value
+    end
+})
+Tabs.Main4:AddDropdown("SelectFoodDropdown", {
+    Title = "Vật phẩm",
+    Values = foodList,
+    Multi = false,
+    Default = nil,
+    Callback = function(Value)
+        _G.SelectedFood = Value
+    end
+})
+Tabs.Main4:AddButton({
+    Title = "Mua tất cả các lựa chọn",
+    Callback = function()
+        local hasSelected = false
+
+        -- Mua Món ăn nếu có chọn
+        if _G.SelectedFood then
+            buyItemEvent:FireServer(_G.SelectedFood)
+            Fluent:Notify({Title = "Mua Món ăn", Content = "Đang mua: " .. _G.SelectedFood, Duration = 3})
+            hasSelected = true
+        end
+            
+        -- Mua Vật phẩm nếu có chọn
+        if _G.SelectedItem then
+            buyItemEvent:FireServer(_G.SelectedItem)
+            Fluent:Notify({Title = "Mua Vật phẩm", Content = "Đang mua: " .. _G.SelectedItem, Duration = 3})
+            hasSelected = true
+        end
+            
+        -- Mua Xe nếu có chọn
+        if _G.SelectedVehicle then
+            remoteEvent:FireServer(_G.SelectedVehicle)
+            Fluent:Notify({Title = "Mua Xe", Content = "Đang mua: " .. _G.SelectedVehicle, Duration = 3})
+            hasSelected = true
+        end
+            
+        -- Thông báo nếu không có gì được chọn
+        if not hasSelected then
+            Fluent:Notify({Title = "Lỗi", Content = "Bạn chưa chọn bất kỳ món nào để mua!", Duration = 3})
+        end
+    end
+})
+
+------------------------------------------------
+-- TAB 5: Farm Sự Kiện 🎃
+------------------------------------------------
+Tabs.Main5:AddToggle("AutoFarmSuKienToggle", { Title = "Auto Farm Sự Kiện", Default = false, Callback = function(Value) _G.AutoFarmSuKien = Value end })
+Tabs.Main5:AddToggle("AutoFarmMatOngToggle", { Title = "Auto Farm Mật Ong", Default = false, Callback = function(Value) _G.AutoFarmMatOng = Value end })
+
+------------------------------------------------
+-- TAB 6:: Farm Boss 👹
+------------------------------------------------
+Tabs.Main6:AddToggle("TeleportToBossToggle",{Title="Dịch Chuyển Đến Boss",Default=false,Callback=function(Value)_G.TeleportToBoss=Value end})
+Tabs.Main6:AddToggle("AutoFarmBossCircleToggle",{Title="Auto Farm Boss",Default=false,Callback=function(Value)_G.AutoFarmBossCircle=Value end})
+Tabs.Main6:AddDropdown("BossFarmModeDropdown", {
+    Title = "Chế Độ Farm",
+Values = {"Chế Độ 1","Chế Độ 2","Chế Độ 3"},
+Default = "Chế Độ 1",
+Callback = function(Value)
+    _G.SelectedBossMode = Value
+    if Fluent.Options["BossDistanceInput"] then
+        if Value == "Chế Độ 1" then
+            Fluent.Options["BossDistanceInput"]:SetValue(tostring(_G.BossSettings.Mode1.Dist))
+        elseif Value == "Chế Độ 2" then
+            Fluent.Options["BossDistanceInput"]:SetValue(tostring(_G.BossSettings.Mode2.Radius))
+        elseif Value == "Chế Độ 3" then
+            Fluent.Options["BossDistanceInput"]:SetValue(tostring(_G.BossSettings.Mode3.Dist))
+        end
+    end
+    if Fluent.Options["BossSpeedInput"] then
+        if Value == "Chế Độ 1" then
+            Fluent.Options["BossSpeedInput"]:SetValue(tostring(_G.BossSettings.Mode1.Speed * 100))
+        elseif Value == "Chế Độ 2" then
+            Fluent.Options["BossSpeedInput"]:SetValue(tostring(_G.BossSettings.Mode2.Speed * 1000))
+        elseif Value == "Chế Độ 3" then
+            Fluent.Options["BossSpeedInput"]:SetValue(tostring(_G.BossSettings.Mode3.Speed))
+        end
+    end
+end
+})
+Tabs.Main6:AddInput("BossDistanceInput", {
+    Title = "Khoảng cách",
+    Placeholder = "Nhập...",
+    Numeric = true,
+    Finished = true,
+    Callback = function(Value)
+        local n = tonumber(Value)
+        if n and n >= 0 then
+            if _G.SelectedBossMode == "Chế Độ 1" then
+                _G.BossSettings.Mode1.Dist = n
+            elseif _G.SelectedBossMode == "Chế Độ 2" then
+                _G.BossSettings.Mode2.Radius = n
+            elseif _G.SelectedBossMode == "Chế Độ 3" then
+                _G.BossSettings.Mode3.Dist = n
+            end
+        end
+    end
+})
+Tabs.Main6:AddInput("BossSpeedInput", {
+    Title = "Tốc độ",
+    Placeholder = "Nhập...",
+    Numeric = true,
+    Finished = true,
+    Callback = function(Value)
+        local n = tonumber(Value)
+        if n and n > 0 then
+            if _G.SelectedBossMode == "Chế Độ 1" then
+                _G.BossSettings.Mode1.Speed = n / 100
+            elseif _G.SelectedBossMode == "Chế Độ 2" then
+                _G.BossSettings.Mode2.Speed = n / 1000
+            elseif _G.SelectedBossMode == "Chế Độ 3" then
+                _G.BossSettings.Mode3.Speed = n
+            end
+        end
+    end
+})
+
+Tabs.Main6:AddToggle("AutoLootBossToggle",{Title="Auto Nhặt Đồ Loot Boss",Default=false,Callback=function(Value)_G.AutoLootBossEnabled=Value end})
+Tabs.Main6:AddToggle("AutoAimBossNoCamToggle",{Title="Aim Hướng Đánh (Giữ Tự Do Cam) 🎯",Default=false,Callback=function(Value)_G.AutoAimBossNoCam=Value end})
+Tabs.Main6:AddToggle("BossTrackerToggle",{Title="Hiện Máu Boss",Default=false,Callback=function(Value)_G.ShowBossTracker=Value Frame.Visible=Value end})
+Tabs.Main6:AddToggle("BossCameraOrbit", {Title = "Camera xoay xung quanh", Default = false, Callback = function(v) _G.ArenaCameraEnabled = v; SetupArenaCamera(v) end})
+
+------------------------------------------------
+-- TAB 7: PVP Combat 🥊 (ĐÃ SỬA: XÓA CHỮ "LẺ" & GHI CHÚ)
+------------------------------------------------
+Tabs.Main7:AddToggle("PvpAimNoCamToggle", { Title = "Aim Nhân Vật", Default = false, Callback = function(Value) _G.PvpAimNoCamActive = Value end })
+Tabs.Main7:AddToggle("PvpAutoAttackToggle", { Title = "Auto Click Tấn Công", Default = false, Callback = function(Value) _G.PvpAutoAttack = Value end })
+Tabs.Main7:AddToggle("AutoBandageToggle", { Title = "Auto Heal", Default = false, Callback = function(Value) _G.AutoBandageEnabled = Value end })
+Tabs.Main7:AddToggle("AutoBuyBandageToggle",{Title="Auto Mua Băng Gạc",Default=false,Callback=function(v)_G.AutoBuyBandage=v if v then lastBuy=tick()-999 end end})
+Tabs.Main7:AddInput("AutoBuyAmount", {Title = "Số lượng", Default = tostring(_G.AutoBuyBandageAmount or 1), Placeholder = "Nhập số lượng...", Numeric = true, Finished = false, Callback = function(v) local n = tonumber(v) if n and n > 0 then _G.AutoBuyBandageAmount = math.floor(n) end end})
+Tabs.Main7:AddToggle("PvpHitboxToggle", { Title = "Khung Hitbox Tầm Nhìn", Default = false, Callback = function(Value) _G.PvpHitboxActive = Value if not Value then clearAllHitboxes() end end })
+Tabs.Main7:AddToggle("PvpHealthToggle", { Title = "Hiện Máu Trên Đầu", Default = false, Callback = function(Value) _G.PvpHealthActive = Value if not Value then clearAllHealthGuis() end end })
+Tabs.Main7:AddToggle("PvpSpinToggle", { Title = "Spin", Default = false, Callback = function(Value) _G.PvpSpinActive = Value end })
+Tabs.Main7:AddToggle("PvpSpeedToggle", { Title = "Siêu Tốc Độ Chạy", Default = false, Callback = function(Value) _G.PvpSpeedActive = Value end })
+Tabs.Main7:AddToggle("PvpJumpToggle", { Title = "Siêu Nhảy Cao", Default = false, Callback = function(Value) _G.PvpJumpActive = Value end })
+
+------------------------------------------------
+-- TAB 8: Fix Lag ⚡
+------------------------------------------------
+Tabs.Main8:AddToggle("FPSBoostNewToggle", { Title = "🚀 Kích Hoạt FPS Boost", Default = false, Callback = function(Value) _G.FPSBoostState = Value if Value then activateFPSBoost() else deactivateFPSBoost() end end })
+Tabs.Main8:AddToggle("Reduce20Toggle", { Title = "📉 Xóa 20% Đồ Họa Gốc", Default = false, Callback = function(Value) _G.Reduce20State = Value toggleGraphicReduction(20, Value) end })
+Tabs.Main8:AddToggle("Reduce40Toggle", { Title = "📉 Xóa 40% Đồ Họa Gốc", Default = false, Callback = function(Value) _G.Reduce40State = Value toggleGraphicReduction(40, Value) end })
+Tabs.Main8:AddToggle("Reduce60Toggle", { Title = "📉 Xóa 60% Đồ Họa Gốc", Default = false, Callback = function(Value) _G.Reduce60State = Value toggleGraphicReduction(60, Value) end })
+Tabs.Main8:AddToggle("Reduce100Toggle", { Title = "📉 Xóa 100% Đồ Họa Gốc", Default = false, Callback = function(Value) _G.Reduce100State = Value toggleGraphicReduction(100, Value) end })
+Tabs.Main8:AddToggle("ClearEverythingToggle", {
+    Title = "❌ Xóa Sạch Texture & Hiệu Ứng", Default = false, 
+    Callback = function(Value)
+        _G.ClearEverythingState = Value
+        if Value then
+            activateFPSBoost()
+            for _, v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("Decal") or v:IsA("Texture") or v:IsA("Sound") then pcall(function() v:Destroy() end) end
+                if v:IsA("ParticleEmitter") or v:IsA("Trail") or v:IsA("Beam") then v.Enabled = false end
+                if v:IsA("BasePart") then v.Material = Enum.Material.SmoothPlastic v.Reflectance = 0 v.CastShadow = false end
+            end
+        end
+    end
+})
+
+------------------------------------------------
+-- TAB 9: Settings ⚙️
+------------------------------------------------
+Tabs.Main9:AddToggle("InfoUIToggle",{Title="Đổi UI thông tin",Default=false,Callback=function(Value)_G.InfoUIState=Value;if Value then CreateInfoUI() else HideInfoUI() end end})
+
+Tabs.Main9:AddParagraph({
+    Title = "Hệ Thống Quản Lý Đa Cấu Hình (Config)",
+    Text = "Từng công tắc gạt đơn lẻ sẽ được lưu trạng thái độc lập. Bạn có thể tự đặt tên, tạo nhiều cấu hình, tự chọn để áp dụng hoặc xóa cấu hình tùy ý."
+})
+
+local NewConfigNameInput = ""
+
+Tabs.Main9:AddInput("ConfigNameInput", {
+    Title = "Cấu hình mới",
+    Default = "", 
+    Placeholder = "Nhập chữ liền không dấu rồi ấn ENTER...",
+    Numeric = false,
+    Finished = true, 
+    Callback = function(Value)
+        local cleanedValue = Value:gsub("%s+", "")
+        if cleanedValue ~= "" then
+            NewConfigNameInput = cleanedValue
+            Fluent:Notify({Title = "Hệ thống Config", Content = "Đã ghi nhận tên: " .. cleanedValue, Duration = 2})
+        end
+    end
+})
+
+Tabs.Main9:AddButton({
+    Title = "Tạo Cấu Hình Mới",
+    Callback = function() 
+        if NewConfigNameInput == "" then
+            Fluent:Notify({Title = "Lỗi", Content = "Vui lòng nhập tên cấu hình vào ô phía trên và ấn Enter trước!", Duration = 3})
+        else
+            saveNewConfigWithName(NewConfigNameInput) 
+        end
+    end
+})
+
+local ConfigDropdown = Tabs.Main9:AddDropdown("SelectConfigDropdown", {
+    Title = "Danh sách",
+    Values = getAllConfigFiles(),
+    Default = "Chưa có config nào",
+    Callback = function(Value)
+        if Value ~= "Chưa có config nào" and Value ~= "" then
+            _G.SelectedConfigName = Value
+            saveGlobalSystemSettings()
+            if _G.UseConfigSystem then loadSelectedConfig(Value) end
+        end
+    end
+})
+
+Tabs.Main9:AddToggle("UseConfigSystemToggle", {
+    Title = "Sử Dụng Config Đang Chọn",
+    Default = false,
+    Callback = function(Value)
+        _G.UseConfigSystem = Value
+        saveGlobalSystemSettings()
+        if Value and _G.SelectedConfigName ~= "" and _G.SelectedConfigName ~= "Chưa có config nào" then
+            loadSelectedConfig(_G.SelectedConfigName)
+        end
+    end
+})
+
+Tabs.Main9:AddButton({
+    Title = "Xóa Cấu Hình Đang Chọn",
+    Callback = function()
+        if _G.SelectedConfigName ~= "" and _G.SelectedConfigName ~= "Chưa có config nào" then
+            deleteSelectedConfig(_G.SelectedConfigName)
+        else
+            Fluent:Notify({Title = "Lỗi", Content = "Hãy chọn một cấu hình từ danh sách trước khi xóa!", Duration = 3})
+        end
+    end
+})
+
+-- 🚀 ĐỒNG BỘ HÓA TỰ ĐỘNG KHI VÀO GAME
+task.defer(function()
+    while not Fluent.Options or not Fluent.Options["UseConfigSystemToggle"] or not Fluent.Options["SelectConfigDropdown"] do
+        task.wait(0.2)
+    end
+    
+    if isfile(GlobalSettingsFile) then
+        pcall(function()
+            local data = HttpService:JSONDecode(readfile(GlobalSettingsFile))
+            if data and data["SelectedConfigName"] then
+                _G.SelectedConfigName = data["SelectedConfigName"]
+                _G.UseConfigSystem = data["UseConfigSystem"] or false
+                
+                Fluent.Options["UseConfigSystemToggle"]:SetValue(_G.UseConfigSystem)
+                Fluent.Options["SelectConfigDropdown"]:SetValue(_G.SelectedConfigName)
+                
+                if _G.UseConfigSystem then
+                    loadSelectedConfig(_G.SelectedConfigName)
+                    Fluent:Notify({Title = "VND💵 System", Content = "Đã tự động nạp & kích hoạt: " .. _G.SelectedConfigName, Duration = 5})
+                end
+            end
+        end)
+    end
+end)
