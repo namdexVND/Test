@@ -1,0 +1,769 @@
+repeat task.wait() until game:IsLoaded()
+
+local Fluent=loadstring(game:HttpGet(
+    "https://github.com/StyearX/Fluent-Modded/releases/download/Fluent/FluentPro"
+))()
+
+Fluent:RegisterCustomTheme("RoyalPurple",{
+    Accent=Color3.fromRGB(170,70,250),
+    AcrylicMain=Color3.fromRGB(16,14,22),
+    Text=Color3.fromRGB(240,235,255),
+    IconColor=Color3.fromRGB(170,70,250),
+    IconSize=18,
+    ShineEnabled=true,
+    Shine={
+        Speed=0.5,
+        RotationSpeed=25,
+        ColorSequence=ColorSequence.new({
+            ColorSequenceKeypoint.new(0,Color3.fromRGB(60,20,100)),
+            ColorSequenceKeypoint.new(0.5,Color3.fromRGB(170,70,250)),
+            ColorSequenceKeypoint.new(1,Color3.fromRGB(60,20,100))
+        })
+    }
+})
+
+local Window=Fluent:CreateWindow({
+    Title="VND hub",
+    SubTitle="bá sàn",
+    TabWidth=160,
+    Size=UDim2.fromOffset(470,370),
+    Acrylic=true,
+    Theme="RoyalPurple",
+    MinimizeKey=Enum.KeyCode.LeftControl,
+    Search=true,
+    UserInfoTop=true,
+    UserInfo=false,
+    UserInfoTitle="VND HUB",
+    UserInfoSubtitle=game.Players.LocalPlayer.Name,
+    UserInfoColor=Color3.fromRGB(170,70,250),
+    TitleIcon="solar/shield-check-bold",
+    Icons="solar/code-bold",
+    Font="GothamSSm"
+})
+
+local ScreenGui=Instance.new("ScreenGui")
+ScreenGui.Name="VND_HUB_Toggle"
+ScreenGui.ResetOnSpawn=false
+ScreenGui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent=game.CoreGui
+
+local ImageButton=Instance.new("ImageButton")
+ImageButton.Name="VNDHubToggle"
+ImageButton.Parent=ScreenGui
+ImageButton.BackgroundColor3=Color3.fromRGB(0,0,0)
+ImageButton.BackgroundTransparency=0
+ImageButton.BorderSizePixel=0
+ImageButton.Position=UDim2.new(0.10615778,0,0.16217947,0)
+ImageButton.Size=UDim2.new(0,45,0,45)
+ImageButton.Image="http://www.roblox.com/asset/?id=136212761828655"
+ImageButton.Active=true
+ImageButton.Draggable=true
+ImageButton.AutoButtonColor=true
+
+local UICorner=Instance.new("UICorner")
+UICorner.CornerRadius=UDim.new(0,4)
+UICorner.Parent=ImageButton
+
+ImageButton.MouseButton1Click:Connect(function()
+    Window:Minimize()
+end)
+
+local Tabs={
+    Main1=Window:AddTab({Title="Main",Icon="solar/home-bold"}),
+    Main2=Window:AddTab({Title="Farm Level",Icon="solar/bolt-bold"}),
+    Main3=Window:AddTab({Title="Farm Tiền",Icon="solar/wallet-bold"}),
+    Main4=Window:AddTab({Title="Mua đồ",Icon="solar/cart-bold"}),
+    Main5=Window:AddTab({Title="Farm Sự Kiện",Icon="solar/star-bold"}),
+    Main6=Window:AddTab({Title="Farm Boss",Icon="solar/shield-user-bold"}),
+    Main7=Window:AddTab({Title="PVP Combat",Icon="solar/gamepad-bold"}),
+    Main8=Window:AddTab({Title="Config",Icon="solar/tuning-bold"}),
+    Main9=Window:AddTab({Title="Fix Lag",Icon="solar/refresh-bold"}),
+    Main10=Window:AddTab({Title="Settings",Icon="solar/settings-bold"})
+}
+
+local Players=game:GetService("Players")
+local RunService=game:GetService("RunService")
+local LocalPlayer=Players.LocalPlayer
+
+local HitboxEnabled=false
+local AutoAttackEnabled=false
+local AimEnabled=false
+local AutoFollowEnabled=false
+local ShowHealthEnabled=false
+
+local HitboxSize=12
+local FollowSpeed=32
+local NormalSpeed=16
+local FollowDistance=3
+
+local FollowSide="Back"
+local Target=nil
+
+local AimPoint="FrontBody"
+local AimSideOffset=0.35
+local AimHeightOffset=0
+local AimDepthOffset=0.25
+
+local LastTargetUpdate=0
+local TargetUpdateDelay=0.12
+
+local LastAttack=0
+local AttackDelay=0.08
+
+local PVP=Tabs.Main7
+
+PVP:AddParagraph({
+    Title="⚡ VIP HUB PVP COMBAT",
+    Content="Hitbox • Auto Attack • Aim • Áp Sát"
+})
+
+PVP:AddToggle("VIP_Hitbox",{
+    Title="Hitbox Tàng Hình",
+    Description="Mở rộng vùng đánh của đối thủ",
+    Default=false
+}):OnChanged(function(Value)
+    HitboxEnabled=Value
+
+    if not Value then
+        for _,player in pairs(Players:GetPlayers()) do
+            if player~=LocalPlayer and player.Character then
+                local hrp=player.Character:FindFirstChild("HumanoidRootPart")
+
+                if hrp then
+                    hrp.Size=Vector3.new(2,2,1)
+                    hrp.Transparency=1
+                    hrp.CanCollide=true
+                end
+            end
+        end
+    end
+end)
+
+PVP:AddInput("VIP_HitboxSize",{
+    Title="Kích Thước Hitbox",
+    Description="Kích thước vùng hitbox",
+    Default=tostring(HitboxSize),
+    Numeric=true,
+    Finished=true,
+    Placeholder="12"
+}):OnChanged(function(Value)
+    local number=tonumber(Value)
+
+    if number and number>=1 then
+        HitboxSize=number
+    end
+end)
+
+PVP:AddToggle("VIP_AutoAttack",{
+    Title="Tự Động Đánh Nhanh",
+    Description="Tự động kích hoạt Tool khi ở gần mục tiêu",
+    Default=false
+}):OnChanged(function(Value)
+    AutoAttackEnabled=Value
+end)
+
+PVP:AddToggle("VIP_Aim",{
+    Title="Aim",
+    Description="Ghim hướng vào điểm mục tiêu",
+    Default=false
+}):OnChanged(function(Value)
+    AimEnabled=Value
+
+    local character=LocalPlayer.Character
+    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid and not Value and not AutoFollowEnabled then
+        humanoid.AutoRotate=true
+    end
+end)
+
+PVP:AddDropdown("VIP_AimPoint",{
+    Title="Vị Trí Aim",
+    Description="Chọn vị trí ghim mục tiêu",
+    Values={
+        "Trước bụng",
+        "Trước vai phải / nách",
+        "Sau gáy",
+        "Sau vai phải / nách"
+    },
+    Default="Trước bụng"
+}):OnChanged(function(Value)
+    if Value=="Trước bụng" then
+        AimPoint="FrontBody"
+    elseif Value=="Trước vai phải / nách" then
+        AimPoint="FrontShoulder"
+    elseif Value=="Sau gáy" then
+        AimPoint="BackNeck"
+    else
+        AimPoint="BackShoulder"
+    end
+end)
+
+PVP:AddInput("VIP_AimWidth",{
+    Title="Độ Lệch Aim",
+    Description="Lệch ngang điểm ghim",
+    Default=tostring(AimSideOffset),
+    Numeric=true,
+    Finished=true,
+    Placeholder="0.35"
+}):OnChanged(function(Value)
+    local number=tonumber(Value)
+
+    if number then
+        AimSideOffset=number
+    end
+end)
+
+PVP:AddInput("VIP_AimHeight",{
+    Title="Độ Cao Aim",
+    Description="Điều chỉnh điểm ghim lên hoặc xuống",
+    Default=tostring(AimHeightOffset),
+    Numeric=true,
+    Finished=true,
+    Placeholder="0"
+}):OnChanged(function(Value)
+    local number=tonumber(Value)
+
+    if number then
+        AimHeightOffset=number
+    end
+end)
+
+PVP:AddInput("VIP_AimDepth",{
+    Title="Độ Sâu Aim",
+    Description="Điều chỉnh điểm ghim trước hoặc sau",
+    Default=tostring(AimDepthOffset),
+    Numeric=true,
+    Finished=true,
+    Placeholder="0.25"
+}):OnChanged(function(Value)
+    local number=tonumber(Value)
+
+    if number then
+        AimDepthOffset=number
+    end
+end)
+
+PVP:AddToggle("VIP_AutoFollow",{
+    Title="Áp Sát • Bám Sau Lưng",
+    Description="Tự di chuyển tới phía sau mục tiêu",
+    Default=false
+}):OnChanged(function(Value)
+    AutoFollowEnabled=Value
+
+    local character=LocalPlayer.Character
+    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        if Value then
+            humanoid.WalkSpeed=FollowSpeed
+        else
+            humanoid.WalkSpeed=NormalSpeed
+            humanoid.AutoRotate=true
+        end
+    end
+end)
+
+PVP:AddDropdown("VIP_FollowSide",{
+    Title="Vị Trí Áp Sát",
+    Description="Chọn vị trí đứng so với mục tiêu",
+    Values={
+        "Sau lưng",
+        "Phía trước / Vai phải"
+    },
+    Default="Sau lưng"
+}):OnChanged(function(Value)
+    if Value=="Sau lưng" then
+        FollowSide="Back"
+    else
+        FollowSide="Front"
+    end
+end)
+
+PVP:AddInput("VIP_FollowSpeed",{
+    Title="Tốc Độ Áp Sát",
+    Description="Tốc độ di chuyển khi bám mục tiêu",
+    Default=tostring(FollowSpeed),
+    Numeric=true,
+    Finished=true,
+    Placeholder="32"
+}):OnChanged(function(Value)
+    local number=tonumber(Value)
+
+    if number and number>=1 then
+        FollowSpeed=number
+
+        if AutoFollowEnabled then
+            local character=LocalPlayer.Character
+            local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+
+            if humanoid then
+                humanoid.WalkSpeed=FollowSpeed
+            end
+        end
+    end
+end)
+
+PVP:AddInput("VIP_FollowDistance",{
+    Title="Khoảng Cách Sau Lưng",
+    Description="Khoảng cách giữ với mục tiêu",
+    Default=tostring(FollowDistance),
+    Numeric=true,
+    Finished=true,
+    Placeholder="3"
+}):OnChanged(function(Value)
+    local number=tonumber(Value)
+
+    if number and number>=2 then
+        FollowDistance=number
+    end
+end)
+
+PVP:AddToggle("VIP_Health",{
+    Title="Hiện Máu Trên Đầu",
+    Description="Hiển thị HP của người chơi",
+    Default=false
+}):OnChanged(function(Value)
+    ShowHealthEnabled=Value
+
+    if not Value then
+        for _,player in pairs(Players:GetPlayers()) do
+            if player.Character then
+                local head=player.Character:FindFirstChild("Head")
+
+                if head then
+                    local gui=head:FindFirstChild("HealthVIPGui")
+
+                    if gui then
+                        gui:Destroy()
+                    end
+                end
+            end
+        end
+    end
+end)
+
+PVP:AddParagraph({
+    Title="📌 Aim",
+    Content="4 điểm: trước bụng • trước vai/nách • sau gáy • sau vai/nách"
+})
+
+local function createHealthUI(player)
+    if player==LocalPlayer then
+        return
+    end
+
+    local character=player.Character
+
+    if not character then
+        return
+    end
+
+    local head=character:FindFirstChild("Head")
+
+    if not head then
+        return
+    end
+
+    if head:FindFirstChild("HealthVIPGui") then
+        return
+    end
+
+    local billboard=Instance.new("BillboardGui")
+    billboard.Name="HealthVIPGui"
+    billboard.Adornee=head
+    billboard.Size=UDim2.new(0,150,0,25)
+    billboard.StudsOffset=Vector3.new(0,2.5,0)
+    billboard.AlwaysOnTop=true
+    billboard.Parent=head
+
+    local textLabel=Instance.new("TextLabel")
+    textLabel.Name="HealthText"
+    textLabel.Size=UDim2.new(1,0,1,0)
+    textLabel.BackgroundTransparency=1
+    textLabel.TextColor3=Color3.fromRGB(0,255,100)
+    textLabel.TextStrokeTransparency=0
+    textLabel.TextStrokeColor3=Color3.fromRGB(0,0,0)
+    textLabel.Font=Enum.Font.SourceSansBold
+    textLabel.TextSize=14
+    textLabel.Text="HP"
+    textLabel.Parent=billboard
+end
+
+local function removeHealthUI(player)
+    if player.Character then
+        local head=player.Character:FindFirstChild("Head")
+
+        if head then
+            local gui=head:FindFirstChild("HealthVIPGui")
+
+            if gui then
+                gui:Destroy()
+            end
+        end
+    end
+end
+
+local function getClosestPlayer()
+    local closestDistance=math.huge
+    local closestPlayer=nil
+
+    local character=LocalPlayer.Character
+    local myHRP=character and character:FindFirstChild("HumanoidRootPart")
+
+    if not myHRP then
+        return nil
+    end
+
+    for _,player in pairs(Players:GetPlayers()) do
+        if player~=LocalPlayer and player.Character then
+            local hrp=player.Character:FindFirstChild("HumanoidRootPart")
+            local humanoid=player.Character:FindFirstChildOfClass("Humanoid")
+
+            if hrp and humanoid and humanoid.Health>0 then
+                local distance=(hrp.Position-myHRP.Position).Magnitude
+
+                if distance<closestDistance then
+                    closestDistance=distance
+                    closestPlayer=player
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+local function getAimPosition(target)
+    if not target or not target.Character then
+        return nil
+    end
+
+    local character=target.Character
+    local hrp=character:FindFirstChild("HumanoidRootPart")
+    local head=character:FindFirstChild("Head")
+    local upperTorso=
+        character:FindFirstChild("UpperTorso") or
+        character:FindFirstChild("Torso")
+
+    if not hrp then
+        return nil
+    end
+
+    local right=hrp.CFrame.RightVector
+    local forward=hrp.CFrame.LookVector
+    local up=hrp.CFrame.UpVector
+    local base=upperTorso and upperTorso.Position or hrp.Position
+
+    if AimPoint=="FrontBody" then
+        return base+
+            forward*AimDepthOffset+
+            right*AimSideOffset+
+            up*AimHeightOffset
+    elseif AimPoint=="FrontShoulder" then
+        return base+
+            up*0.35+
+            forward*AimDepthOffset+
+            right*(0.75+AimSideOffset)+
+            up*AimHeightOffset
+    elseif AimPoint=="BackNeck" then
+        local neckBase=head and head.Position or base
+
+        return neckBase-
+            forward*AimDepthOffset+
+            right*AimSideOffset+
+            up*AimHeightOffset
+    elseif AimPoint=="BackShoulder" then
+        return base+
+            up*0.35-
+            forward*AimDepthOffset+
+            right*(0.75+AimSideOffset)+
+            up*AimHeightOffset
+    end
+
+    return base
+end
+
+LocalPlayer.CharacterAdded:Connect(function(character)
+    Target=nil
+
+    local humanoid=character:WaitForChild("Humanoid",5)
+
+    if humanoid then
+        NormalSpeed=humanoid.WalkSpeed
+
+        if AutoFollowEnabled then
+            humanoid.WalkSpeed=FollowSpeed
+        else
+            humanoid.WalkSpeed=NormalSpeed
+        end
+
+        humanoid.AutoRotate=true
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if HitboxEnabled then
+        for _,player in pairs(Players:GetPlayers()) do
+            if player~=LocalPlayer and player.Character then
+                local hrp=player.Character:FindFirstChild("HumanoidRootPart")
+                local humanoid=player.Character:FindFirstChildOfClass("Humanoid")
+
+                if hrp and humanoid and humanoid.Health>0 then
+                    hrp.Size=Vector3.new(
+                        HitboxSize,
+                        HitboxSize,
+                        HitboxSize
+                    )
+
+                    hrp.Transparency=1
+                    hrp.CanCollide=false
+                end
+            end
+        end
+    end
+
+    if ShowHealthEnabled then
+        for _,player in pairs(Players:GetPlayers()) do
+            if player~=LocalPlayer and player.Character then
+                local humanoid=player.Character:FindFirstChildOfClass("Humanoid")
+                local head=player.Character:FindFirstChild("Head")
+
+                if humanoid and head then
+                    createHealthUI(player)
+
+                    local gui=head:FindFirstChild("HealthVIPGui")
+                    local textLabel=gui and gui:FindFirstChild("HealthText")
+
+                    if textLabel then
+                        local hp=math.floor(humanoid.Health)
+                        local maxHp=math.floor(humanoid.MaxHealth)
+
+                        textLabel.Text=
+                            player.Name..
+                            " ["..
+                            hp..
+                            "/"..
+                            maxHp..
+                            "]"
+
+                        local percent=hp/math.max(maxHp,1)
+
+                        if percent>0.5 then
+                            textLabel.TextColor3=Color3.fromRGB(0,255,100)
+                        elseif percent>0.25 then
+                            textLabel.TextColor3=Color3.fromRGB(255,200,0)
+                        else
+                            textLabel.TextColor3=Color3.fromRGB(255,50,50)
+                        end
+                    end
+                end
+            end
+        end
+    else
+        for _,player in pairs(Players:GetPlayers()) do
+            removeHealthUI(player)
+        end
+    end
+
+    if os.clock()-LastTargetUpdate>=TargetUpdateDelay then
+        Target=getClosestPlayer()
+        LastTargetUpdate=os.clock()
+    end
+
+    local character=LocalPlayer.Character
+    local myHRP=character and character:FindFirstChild("HumanoidRootPart")
+    local myHumanoid=character and character:FindFirstChildOfClass("Humanoid")
+
+    if not myHRP or not myHumanoid then
+        return
+    end
+
+    if AutoFollowEnabled and Target and Target.Character then
+        local enemyHRP=Target.Character:FindFirstChild("HumanoidRootPart")
+        local enemyHumanoid=Target.Character:FindFirstChildOfClass("Humanoid")
+
+        if enemyHRP and enemyHumanoid and enemyHumanoid.Health>0 then
+            myHumanoid.WalkSpeed=FollowSpeed
+
+            local targetPosition
+
+            if FollowSide=="Back" then
+                targetPosition=
+                    enemyHRP.Position-
+                    enemyHRP.CFrame.LookVector*
+                    FollowDistance
+            else
+                targetPosition=
+                    enemyHRP.Position+
+                    enemyHRP.CFrame.LookVector*
+                    FollowDistance+
+                    enemyHRP.CFrame.RightVector*
+                    0.8
+            end
+
+            local offset=targetPosition-myHRP.Position
+            local distance=offset.Magnitude
+
+            if distance>1.5 then
+                myHumanoid.AutoRotate=true
+
+                if distance>0.01 then
+                    myHumanoid:Move(
+                        offset.Unit,
+                        false
+                    )
+                end
+            else
+                myHumanoid:Move(
+                    Vector3.zero,
+                    false
+                )
+
+                if FollowSide=="Back" and not AimEnabled then
+                    local look=enemyHRP.CFrame.LookVector
+
+                    local flatLook=Vector3.new(
+                        look.X,
+                        0,
+                        look.Z
+                    )
+
+                    if flatLook.Magnitude>0.01 then
+                        myHumanoid.AutoRotate=false
+
+                        myHRP.CFrame=
+                            CFrame.lookAt(
+                                myHRP.Position,
+                                myHRP.Position+
+                                flatLook.Unit
+                            )
+                    end
+                end
+            end
+
+            if AimEnabled then
+                local aimPosition=getAimPosition(Target)
+
+                if aimPosition then
+                    local aimDirection=aimPosition-myHRP.Position
+
+                    local flatDirection=Vector3.new(
+                        aimDirection.X,
+                        0,
+                        aimDirection.Z
+                    )
+
+                    if flatDirection.Magnitude>0.01 then
+                        myHumanoid.AutoRotate=false
+
+                        myHRP.CFrame=
+                            CFrame.lookAt(
+                                myHRP.Position,
+                                myHRP.Position+
+                                flatDirection.Unit
+                            )
+                    end
+                end
+            end
+        else
+            Target=nil
+            myHumanoid.AutoRotate=true
+        end
+    elseif AimEnabled and Target and Target.Character then
+        local aimPosition=getAimPosition(Target)
+
+        if aimPosition then
+            local aimDirection=aimPosition-myHRP.Position
+
+            local flatDirection=Vector3.new(
+                aimDirection.X,
+                0,
+                aimDirection.Z
+            )
+
+            if flatDirection.Magnitude>0.01 then
+                myHumanoid.AutoRotate=false
+
+                myHRP.CFrame=
+                    CFrame.lookAt(
+                        myHRP.Position,
+                        myHRP.Position+
+                        flatDirection.Unit
+                    )
+            end
+        end
+    else
+        if not AutoFollowEnabled then
+            myHumanoid.WalkSpeed=NormalSpeed
+            myHumanoid.AutoRotate=true
+        end
+    end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if not AutoAttackEnabled then
+        return
+    end
+
+    if os.clock()-LastAttack<AttackDelay then
+        return
+    end
+
+    local character=LocalPlayer.Character
+
+    if not character then
+        return
+    end
+
+    local myHRP=character:FindFirstChild("HumanoidRootPart")
+
+    if not myHRP then
+        return
+    end
+
+    local target=Target
+
+    if not target or not target.Character then
+        return
+    end
+
+    local enemyHRP=target.Character:FindFirstChild("HumanoidRootPart")
+    local enemyHumanoid=target.Character:FindFirstChildOfClass("Humanoid")
+
+    if not enemyHRP or not enemyHumanoid or enemyHumanoid.Health<=0 then
+        return
+    end
+
+    local distance=
+        (myHRP.Position-enemyHRP.Position).Magnitude
+
+    if distance<=math.max(
+        FollowDistance+4,
+        (HitboxSize/2)+3
+    ) then
+        local tool=character:FindFirstChildOfClass("Tool")
+
+        if tool then
+            LastAttack=os.clock()
+
+            pcall(function()
+                tool:Activate()
+            end)
+        end
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    if player==Target then
+        Target=nil
+    end
+end)
+
+Window:SelectTab(7)
+
+Fluent:Notify({
+    Title="VND HUB",
+    Content="PVP Combat + 4 Aim Point đã được thêm!",
+    Duration=3
+})
