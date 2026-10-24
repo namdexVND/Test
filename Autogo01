@@ -1,0 +1,501 @@
+-- =========================================================================
+-- CODE CHÍNH CỦA SCRIPT
+-- =========================================================================
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Biến toàn cục quản lý
+_G.AutoLootEnabled = _G.AutoLootEnabled or false
+_G.AutoLootBossEnabled = _G.AutoLootBossEnabled or false
+_G.PlayerESPEnabled = _G.PlayerESPEnabled or false
+
+-- Xóa UI cũ nếu có
+if playerGui:FindFirstChild("GrapeHubGui") then
+	playerGui.GrapeHubGui:Destroy()
+end
+
+-- Tạo ScreenGui chính
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "GrapeHubGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Khung giao diện chính (Dạng Chữ Nhật mở rộng: Size 420 x 255)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 420, 0, 255)
+mainFrame.Position = UDim2.new(0.5, -210, 0.7, -125)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 10)
+frameCorner.Parent = mainFrame
+
+local frameStroke = Instance.new("UIStroke")
+frameStroke.Color = Color3.fromRGB(70, 70, 90)
+frameStroke.Thickness = 1.5
+frameStroke.Parent = mainFrame
+
+-- Tiêu đề thanh ngang (Nhấn giữ để kéo di chuyển UI)
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 13
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Text = "🍇 VND Hub - Custom Teleport, Loot & ESP (Kéo để di chuyển)"
+titleLabel.Parent = mainFrame
+
+-- Hộp hiển thị trạng thái
+local statusBox = Instance.new("TextLabel")
+statusBox.Size = UDim2.new(1, -20, 0, 38)
+statusBox.Position = UDim2.new(0, 10, 0, 32)
+statusBox.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
+statusBox.TextColor3 = Color3.fromRGB(200, 200, 210)
+statusBox.TextSize = 11
+statusBox.Font = Enum.Font.Code
+statusBox.TextWrapped = true
+statusBox.TextXAlignment = Enum.TextXAlignment.Left
+statusBox.TextYAlignment = Enum.TextYAlignment.Top
+statusBox.Text = "Trạng thái: Sẵn sàng hoạt động..."
+statusBox.Parent = mainFrame
+
+local boxCorner = Instance.new("UICorner")
+boxCorner.CornerRadius = UDim.new(0, 6)
+boxCorner.Parent = statusBox
+
+local boxPadding = Instance.new("UIPadding")
+boxPadding.PaddingTop = UDim.new(0, 4)
+boxPadding.PaddingBottom = UDim.new(0, 4)
+boxPadding.PaddingLeft = UDim.new(0, 6)
+boxPadding.PaddingRight = UDim.new(0, 6)
+boxPadding.Parent = mainFrame
+
+-- ==================== KHUNG NHẬP SỐ TÙY CHỈNH 1 (Teleport) ====================
+local settingContainer = Instance.new("Frame")
+settingContainer.Size = UDim2.new(1, -20, 0, 28)
+settingContainer.Position = UDim2.new(0, 10, 0, 76)
+settingContainer.BackgroundTransparency = 1
+settingContainer.Parent = mainFrame
+
+local labelY = Instance.new("TextLabel")
+labelY.Size = UDim2.new(0, 75, 1, 0)
+labelY.BackgroundTransparency = 1
+labelY.TextColor3 = Color3.fromRGB(255, 255, 255)
+labelY.TextSize = 11
+labelY.Font = Enum.Font.GothamBold
+labelY.Text = "Cao Y (+/-):"
+labelY.TextXAlignment = Enum.TextXAlignment.Left
+labelY.Parent = settingContainer
+
+local inputY = Instance.new("TextBox")
+inputY.Size = UDim2.new(0, 120, 1, 0)
+inputY.Position = UDim2.new(0, 75, 0, 0)
+inputY.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+inputY.TextColor3 = Color3.fromRGB(255, 255, 255)
+inputY.TextSize = 12
+inputY.Font = Enum.Font.Code
+inputY.Text = "3.2"
+inputY.Parent = settingContainer
+
+local inputYCorner = Instance.new("UICorner")
+inputYCorner.CornerRadius = UDim.new(0, 6)
+inputYCorner.Parent = inputY
+
+local labelSide = Instance.new("TextLabel")
+labelSide.Size = UDim2.new(0, 75, 1, 0)
+labelSide.Position = UDim2.new(0, 205, 0, 0)
+labelSide.BackgroundTransparency = 1
+labelSide.TextColor3 = Color3.fromRGB(255, 255, 255)
+labelSide.TextSize = 11
+labelSide.Font = Enum.Font.GothamBold
+labelSide.Text = " Lệch Bên:"
+labelSide.TextXAlignment = Enum.TextXAlignment.Left
+labelSide.Parent = settingContainer
+
+local inputSide = Instance.new("TextBox")
+inputSide.Size = UDim2.new(0, 115, 1, 0)
+inputSide.Position = UDim2.new(0, 280, 0, 0)
+inputSide.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+inputSide.TextColor3 = Color3.fromRGB(255, 255, 255)
+inputSide.TextSize = 12
+inputSide.Font = Enum.Font.Code
+inputSide.Text = "3"
+inputSide.Parent = settingContainer
+
+local inputSideCorner = Instance.new("UICorner")
+inputSideCorner.CornerRadius = UDim.new(0, 6)
+inputSideCorner.Parent = inputSide
+
+-- ==================== KHUNG NHẬP SỐ TÙY CHỈNH 2 (Anti-Player Distance) ====================
+local antiContainer = Instance.new("Frame")
+antiContainer.Size = UDim2.new(1, -20, 0, 28)
+antiContainer.Position = UDim2.new(0, 10, 0, 110)
+antiContainer.BackgroundTransparency = 1
+antiContainer.Parent = mainFrame
+
+local labelDist = Instance.new("TextLabel")
+labelDist.Size = UDim2.new(0, 130, 1, 0)
+labelDist.BackgroundTransparency = 1
+labelDist.TextColor3 = Color3.fromRGB(255, 100, 100)
+labelDist.TextSize = 11
+labelDist.Font = Enum.Font.GothamBold
+labelDist.Text = "Khoảng cách thoát (m):"
+labelDist.TextXAlignment = Enum.TextXAlignment.Left
+labelDist.Parent = antiContainer
+
+local inputDist = Instance.new("TextBox")
+inputDist.Size = UDim2.new(0, 265, 1, 0)
+inputDist.Position = UDim2.new(0, 130, 0, 0)
+inputDist.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+inputDist.TextColor3 = Color3.fromRGB(255, 255, 255)
+inputDist.TextSize = 12
+inputDist.Font = Enum.Font.Code
+inputDist.Text = "20" -- Mặc định 20 mét thì thoát game
+inputDist.Parent = antiContainer
+
+local inputDistCorner = Instance.new("UICorner")
+inputDistCorner.CornerRadius = UDim.new(0, 6)
+inputDistCorner.Parent = inputDist
+
+-- ==================== KHUNG CHỨA 3 NÚT BẤM ====================
+local btnContainer = Instance.new("Frame")
+btnContainer.Size = UDim2.new(1, -20, 0, 36)
+btnContainer.Position = UDim2.new(0, 10, 0, 148)
+btnContainer.BackgroundTransparency = 1
+btnContainer.Parent = mainFrame
+
+-- Nút 1: Auto Teleport Nho
+local toggleFarmBtn = Instance.new("TextButton")
+toggleFarmBtn.Size = UDim2.new(0.32, 0, 1, 0)
+toggleFarmBtn.Position = UDim2.new(0, 0, 0, 0)
+toggleFarmBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+toggleFarmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleFarmBtn.TextSize = 10
+toggleFarmBtn.Font = Enum.Font.GothamBold
+toggleFarmBtn.Text = "🔴 Auto Teleport"
+toggleFarmBtn.Parent = btnContainer
+
+local btnCorner1 = Instance.new("UICorner")
+btnCorner1.CornerRadius = UDim.new(0, 6)
+btnCorner1.Parent = toggleFarmBtn
+
+-- Nút 2: Auto Nhặt Đồ / Boss
+local toggleLootBtn = Instance.new("TextButton")
+toggleLootBtn.Size = UDim2.new(0.32, 0, 1, 0)
+toggleLootBtn.Position = UDim2.new(0.34, 0, 0, 0)
+toggleLootBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+toggleLootBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleLootBtn.TextSize = 10
+toggleLootBtn.Font = Enum.Font.GothamBold
+toggleLootBtn.Text = "🔴 Auto Nhặt Đồ"
+toggleLootBtn.Parent = btnContainer
+
+local btnCorner2 = Instance.new("UICorner")
+btnCorner2.CornerRadius = UDim.new(0, 6)
+btnCorner2.Parent = toggleLootBtn
+
+-- Nút 3: Player ESP & Anti-Player
+local toggleEspBtn = Instance.new("TextButton")
+toggleEspBtn.Size = UDim2.new(0.32, 0, 1, 0)
+toggleEspBtn.Position = UDim2.new(0.68, 0, 0, 0)
+toggleEspBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+toggleEspBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleEspBtn.TextSize = 10
+toggleEspBtn.Font = Enum.Font.GothamBold
+toggleEspBtn.Text = "🔴 Player ESP & Anti"
+toggleEspBtn.Parent = btnContainer
+
+local btnCorner3 = Instance.new("UICorner")
+btnCorner3.CornerRadius = UDim.new(0, 6)
+btnCorner3.Parent = toggleEspBtn
+
+-- ==================== TÍNH NĂNG KÉO THẢ (DRAGGABLE) ====================
+local dragging, dragStart, startPos
+
+titleLabel.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local delta = input.Position - dragStart
+		mainFrame.Position = UDim2.new(
+			startPos.X.Scale, 
+			startPos.X.Offset + delta.X, 
+			startPos.Y.Scale, 
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+-- ==================== LOGIC AUTO NHẶT ĐỒ / BOSS ====================
+task.spawn(function()
+	while true do
+		task.wait(0.5)
+
+		if _G.AutoLootEnabled or _G.AutoLootBossEnabled then
+			pcall(function()
+				local char = Players.LocalPlayer.Character
+				local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+				if hrp then
+					for _, v in ipairs(workspace:GetDescendants()) do
+						if v:IsA("ProximityPrompt") then
+							local pos = v.Parent:IsA("BasePart") and v.Parent.Position or (v.Parent:IsA("Model") and v.Parent:GetPivot().Position)
+
+							if pos and (hrp.Position - pos).Magnitude <= 20 then
+								if fireproximityprompt then
+									fireproximityprompt(v)
+								end
+							end
+						end
+
+						if v:IsA("TouchInterest") and v.Parent:IsA("BasePart") then
+							if (hrp.Position - v.Parent.Position).Magnitude <= 20 then
+								if firetouchinterest then
+									firetouchinterest(hrp, v.Parent, 0)
+									firetouchinterest(hrp, v.Parent, 1)
+								end
+							end
+						end
+					end
+				end
+			end)
+		end
+	end
+end)
+
+toggleLootBtn.MouseButton1Click:Connect(function()
+	_G.AutoLootEnabled = not _G.AutoLootEnabled
+	_G.AutoLootBossEnabled = _G.AutoLootEnabled
+
+	if _G.AutoLootEnabled then
+		toggleLootBtn.Text = "🟢 Auto Nhặt Đồ"
+		toggleLootBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 80)
+		statusBox.Text = "💎 Đã bật Auto Nhặt Đồ & Boss (20m)!"
+	else
+		toggleLootBtn.Text = "🔴 Auto Nhặt Đồ"
+		toggleLootBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+		statusBox.Text = "🛑 Đã tắt Auto Nhặt Đồ & Boss."
+	end
+end)
+
+-- ==================== LOGIC PLAYER ESP & ANTI-PLAYER (KHOẢNG CÁCH THOÁT) ====================
+local espFolder = Instance.new("Folder")
+espFolder.Name = "VND_ESP_Folder"
+espFolder.Parent = playerGui
+
+task.spawn(function()
+	while true do
+		task.wait(0.2)
+		
+		if _G.PlayerESPEnabled then
+			pcall(function()
+				local char = player.Character
+				local hrp = char and char:FindFirstChild("HumanoidRootPart")
+				local maxSafeDist = tonumber(inputDist.Text) or 20 -- Lấy số mét từ ô nhập trên UI
+				
+				-- Xóa BillboardGui cũ để cập nhật mới
+				espFolder:ClearAllChildren()
+
+				for _, otherPlayer in ipairs(Players:GetPlayers()) do
+					if otherPlayer ~= player and otherPlayer.Character then
+						local oChar = otherPlayer.Character
+						local oHrp = oChar:FindFirstChild("HumanoidRootPart")
+						local oHead = oChar:FindFirstChild("Head")
+
+						if oHrp and oHead then
+							local dist = hrp and (hrp.Position - oHrp.Position).Magnitude or 9999
+
+							-- 1. KIỂM TRA TỰ ĐỘNG THOÁT NẾU NGƯỜI CHƠI KHÁC ĐẾN QUÁ GẦN
+							if hrp and dist <= maxSafeDist then
+								statusBox.Text = string.format("⚠️ CẢNH BÁO: Người chơi [%s] cách bạn %.1fm! Đang thoát game...", otherPlayer.Name, dist)
+								task.wait(0.1)
+								-- Lệnh thoát game bảo vệ tài khoản ngay lập tức
+								pcall(function()
+									game:Shutdown() -- Hoặc dùng TeleportService đá về server khác nếu game hỗ trợ
+								end)
+								player:Kick("\n[VND Hub Anti-Player]\nPhát hiện người chơi khác đến gần dưới " .. maxSafeDist .. "m! Đã tự động ngắt kết nối.")
+								return
+							end
+
+							-- 2. TẠO BILLBOARD ESP HIỂN THỊ TÊN & KHOẢNG CÁCH TRÊN ĐẦU
+							local bill = Instance.new("BillboardGui")
+							bill.Name = "ESP_" .. otherPlayer.Name
+							bill.Adornee = oHead
+							bill.Size = UDim2.new(0, 200, 0, 50)
+							bill.StudsOffset = Vector3.new(0, 2.2, 0)
+							bill.AlwaysOnTop = true
+							bill.Parent = espFolder
+
+							local textLabel = Instance.new("TextLabel")
+							textLabel.Size = UDim2.new(1, 0, 1, 0)
+							textLabel.BackgroundTransparency = 1
+							textLabel.TextColor3 = Color3.fromRGB(0, 255, 120)
+							textLabel.TextStrokeTransparency = 0 -- Viền đen chữ dễ nhìn
+							textLabel.TextSize = 13
+							textLabel.Font = Enum.Font.GothamBold
+							textLabel.Text = string.format("👤 %s\n📏 [%.1fm]", otherPlayer.Name, dist)
+							textLabel.Parent = bill
+						end
+					end
+				end
+			end)
+		else
+			espFolder:ClearAllChildren()
+		end
+	end
+end)
+
+toggleEspBtn.MouseButton1Click:Connect(function()
+	_G.PlayerESPEnabled = not _G.PlayerESPEnabled
+
+	if _G.PlayerESPEnabled then
+		toggleEspBtn.Text = "🟢 ESP & Anti: BẬT"
+		toggleEspBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 80)
+		statusBox.Text = "👁️ Đã bật ESP Người chơi & Anti-Player Distance!"
+	else
+		toggleEspBtn.Text = "🔴 Player ESP & Anti"
+		toggleEspBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+		statusBox.Text = "🛑 Đã tắt ESP & Anti-Player."
+		espFolder:ClearAllChildren()
+	end
+end)
+
+-- ==================== LOGIC TELEPORT BẰNG RAYCAST DƯỚI ĐẤT ====================
+local autoFarmEnabled = false
+
+local function getCustomGroundPosition(treeObj)
+	local treePos = nil
+	if treeObj:IsA("Model") then
+		treePos = treeObj:GetPivot().Position
+	elseif treeObj:IsA("BasePart") then
+		treePos = treeObj.Position
+	end
+
+	if not treePos then return nil end
+
+	local offsetY = tonumber(inputY.Text) or 3.2
+	local offsetSide = tonumber(inputSide.Text) or 3
+
+	local checkPos = treePos + Vector3.new(offsetSide, 10, 0)
+	
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	
+	local char = player.Character
+	if char then
+		raycastParams.FilterDescendantsInstances = {char, treeObj}
+	end
+
+	local rayResult = Workspace:Raycast(checkPos, Vector3.new(0, -50, 0), raycastParams)
+
+	if rayResult then
+		return CFrame.new(rayResult.Position + Vector3.new(0, offsetY, 0))
+	else
+		return CFrame.new(treePos + Vector3.new(offsetSide, offsetY, 0))
+	end
+end
+
+local function clickPromptButton()
+	local pGui = player:FindFirstChild("PlayerGui")
+	if not pGui then return false end
+
+	local promptGui = pGui:FindFirstChild("ProximityPrompts")
+	if not promptGui then return false end
+
+	local promptFrame = promptGui:FindFirstChild("Prompt")
+	if not promptFrame then return false end
+
+	local textBtn = promptFrame:FindFirstChild("TextButton")
+	if not textBtn then return false end
+
+	if firesignal then
+		firesignal(textBtn.MouseButton1Click)
+		return true
+	elseif getconnections then
+		for _, conn in ipairs(getconnections(textBtn.MouseButton1Click)) do
+			conn:Fire()
+		end
+		return true
+	end
+	return false
+end
+
+toggleFarmBtn.MouseButton1Click:Connect(function()
+	autoFarmEnabled = not autoFarmEnabled
+
+	if autoFarmEnabled then
+		toggleFarmBtn.Text = "🟢 Auto Teleport"
+		toggleFarmBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 80)
+		statusBox.Text = "🚀 Đang chạy vòng lặp farm cây nho..."
+
+		task.spawn(function()
+			while autoFarmEnabled do
+				local character = player.Character or player.CharacterAdded:Wait()
+				local rootPart = character:FindFirstChild("HumanoidRootPart")
+				local jobNhoFolder = Workspace:FindFirstChild("job nho")
+
+				if not jobNhoFolder then
+					statusBox.Text = "⚠️ Lỗi: Không thấy thư mục 'job nho'!"
+					break
+				end
+
+				local treeList = {}
+				for _, child in ipairs(jobNhoFolder:GetChildren()) do
+					if child.Name == "cây nho" then
+						table.insert(treeList, child)
+					end
+				end
+
+				if #treeList == 0 then
+					statusBox.Text = "⚠️ Không tìm thấy cây nho nào!"
+					task.wait(2)
+				else
+					for index, tree in ipairs(treeList) do
+						if not autoFarmEnabled then break end
+
+						if rootPart and character then
+							local targetCFrame = getCustomGroundPosition(tree)
+							if targetCFrame then
+								rootPart.Anchored = true
+								rootPart.CFrame = targetCFrame
+								task.wait(0.1)
+								rootPart.Anchored = false
+
+								statusBox.Text = string.format("🌲 [%d/%d] Tới: %s\n⏳ Đang bấm nút...", index, #treeList, tree.Name)
+								
+								task.wait(0.2)
+								clickPromptButton()
+							end
+						end
+
+						task.wait(1.2)
+					end
+				end
+
+				task.wait(0.5)
+			end
+		end)
+	else
+		toggleFarmBtn.Text = "🔴 Auto Teleport"
+		toggleFarmBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+		statusBox.Text = "🛑 Đã dừng Auto Farm Nho."
+	end
+end)
